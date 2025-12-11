@@ -1,4 +1,7 @@
 name: Reusable Docker Build & Publish
+  
+env:
+  REGISTRY: "ghcr.io"
 
 on:
   workflow_call:
@@ -11,7 +14,6 @@ on:
 jobs:
   build-and-push:
     env:
-      REGISTRY: "ghcr.io"
       IMAGE_NAME: ${{ env.REGISTRY }}/${{ github.repository }}/hamqtt-integration-${{ inputs.image_name }}
       
     runs-on: ubuntu-latest
