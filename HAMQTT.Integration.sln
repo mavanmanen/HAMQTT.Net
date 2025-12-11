@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HAMQTT.Integration.Oxxio", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{F92A52A2-3B1A-49E4-8DD8-979439077108}"
 	ProjectSection(SolutionItems) = preProject
-		compose.yaml = compose.yaml
+		.github\workflows\oxxio.yml = .github\workflows\oxxio.yml
 	EndProjectSection
 EndProject
 Global

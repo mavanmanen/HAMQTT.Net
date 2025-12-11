@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["HAMQTT.Integration.Oxxio/HAMQTT.Integration.Oxxio.csproj", "HAMQTT.Integration.Oxxio/"]
-COPY ["HAMQTT.Integration/HAMQTT.Integration.csproj", "HAMQTT.Integration/"]
+COPY ["../HAMQTT.Integration/HAMQTT.Integration.csproj", "HAMQTT.Integration/"]
 RUN dotnet restore "HAMQTT.Integration.Oxxio/HAMQTT.Integration.Oxxio.csproj"
 COPY . .
 WORKDIR "/src/HAMQTT.Integration.Oxxio"
