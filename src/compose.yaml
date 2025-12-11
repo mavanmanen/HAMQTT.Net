@@ -1,7 +1,0 @@
-﻿services:
-  hamqtt.integration.oxxio:
-    image: hamqtt.integration.oxxio
-    build:
-      context: .
-      dockerfile: HAMQTT.Integration.Oxxio/Dockerfile
-

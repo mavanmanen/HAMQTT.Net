@@ -1,0 +1,17 @@
+services:
+  hamqtt-integration-oxxio:
+    image: hamqtt-integration-oxxio
+    build:
+      context: ../../
+      dockerfile: src/HAMQTT.Integration.Oxxio/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      - MQTT_HOST
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
+    restart: unless-stopped
+    networks:
+      - hamqtt-integration_network
+    depends_on:
+      - mosquitto
