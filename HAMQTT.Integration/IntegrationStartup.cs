@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace HAMQTT.Integration;
 
 public abstract class IntegrationStartup

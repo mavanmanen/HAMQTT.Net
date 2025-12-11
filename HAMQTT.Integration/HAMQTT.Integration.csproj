@@ -6,8 +6,10 @@
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
     </PropertyGroup>
-    
-    <Sdk Name="Microsoft.NET.Sdk.Web"/>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Coravel" Version="6.0.2"/>
