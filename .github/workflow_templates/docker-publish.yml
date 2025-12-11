@@ -1,0 +1,14 @@
+name: Docker Build & Publish
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    uses: mavanmanen/HAMQTT/.github/workflows/reusable-docker-publish.yml@main
+    with:
+      image_name: my-new-app

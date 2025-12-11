@@ -1,0 +1,9 @@
+{
+  "name": "Docker Build & Publish (Standard)",
+  "description": "Builds a Docker image and pushes it to GHCR. Required for all backend services.",
+  "iconName": "docker",
+  "categories": [
+    "Deployment",
+    "Container"
+  ]
+}
