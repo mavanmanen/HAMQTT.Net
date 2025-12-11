@@ -1,4 +1,4 @@
-name: Reusable Docker Build & Publish
+name: HAMQTT Integration Workflow
 
 on:
   workflow_call:
