@@ -1,0 +1,132 @@
+﻿{
+  "$schema": "https://json.schemastore.org/template",
+  "identity": "HAMQTT.Integration.Template",
+  "author": "mavanmanen",
+  "classifications": [
+    "HAMQTT",
+    "Integration"
+  ],
+  "name": "HAMQTT Integration Project",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "shortName": "hamqtt-integration",
+  "primaryOutputs": [
+    {
+      "path": "HAMQTT.Integration.IntegrationName/HAMQTT.Integration.IntegrationName.csproj"
+    }
+  ],
+  "symbols": {
+    "integration-name": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Name of the integration",
+      "replaces": "IntegrationName",
+      "fileRename": "IntegrationName",
+      "isRequired": true
+    },
+    "mqtt-host": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "MQTT Host",
+      "replaces": "MQTT_HOST_VALUE",
+      "isRequired": true
+    },
+    "mqtt-username": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "MQTT Username",
+      "replaces": "MQTT_USERNAME_VALUE",
+      "isRequired": true
+    },
+    "UserSecretsId": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "USER_SECRETS_ID"
+    },
+    "FixReference": {
+      "type": "parameter",
+      "isHidden": "true",
+      "replaces": "..\\..\\..\\HAMQTT.Integration\\HAMQTT.Integration.csproj",
+      "defaultValue": "..\\HAMQTT.Integration\\HAMQTT.Integration.csproj"
+    },
+    "ReplaceUppercaseWithUnderscore": {
+      "type": "generated",
+      "generator": "regex",
+      "parameters": {
+        "source": "integration-name",
+        "steps": [
+          {
+            "regex": "(?<=[a-z])(?=[A-Z])",
+            "replacement": "_"
+          }
+        ]
+      }
+    },
+    "ReplacesUppercaseWithDash": {
+      "type": "generated",
+      "generator": "regex",
+      "parameters": {
+        "source": "integration-name",
+        "steps": [
+          {
+            "regex": "(?<=[a-z])(?=[A-Z])",
+            "replacement": "-"
+          }
+        ]
+      }
+    },
+    "ConstantCase": {
+      "type": "generated",
+      "generator": "casing",
+      "replaces": "INTEGRATION_NAME",
+      "parameters": {
+        "source": "ReplaceUppercaseWithUnderscore",
+        "toLower": false
+      }
+    },
+    "KebabCase": {
+      "type": "generated",
+      "generator": "casing",
+      "replaces": "integration-name",
+      "parameters": {
+        "source": "ReplacesUppercaseWithDash",
+        "toLower": true
+      }
+    },
+    "SnakeCase": {
+      "type": "generated",
+      "generator": "casing",
+      "replaces": "integration_name",
+      "parameters": {
+        "source": "ReplaceUppercaseWithUnderscore",
+        "toLower": true
+      }
+    }
+  },
+  "postActions": [
+    {
+      "actionId": "D396686C-DE0E-4DE6-906D-291CD29FC5DE",
+      "description": "Add project to solution",
+      "args": {
+        "primaryOutputIndexes": "0"
+      },
+      "continueOnError": true,
+      "manualInstructions": [
+        {
+          "text": "Add project to solution"
+        }
+      ]
+    },
+    {
+      "actionId": "AC1156F7-BB77-4DB8-B28F-24EEBCCA1E5C",
+      "description": "Set your MQTT Password securely",
+      "manualInstructions": [
+        {
+          "text": "Project created! To set your MQTT password securely, run:\ndotnet user-secrets set 'MQTT_PASSWORD' 'YOUR_SECURE_PASSWORD'"
+        }
+      ]
+    }
+  ]
+}

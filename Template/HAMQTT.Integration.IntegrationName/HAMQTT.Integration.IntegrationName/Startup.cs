@@ -1,4 +1,4 @@
-﻿namespace HAMQTT.Integration.Template;
+﻿namespace HAMQTT.Integration.IntegrationName;
 
 public class Startup : IntegrationStartup
 {

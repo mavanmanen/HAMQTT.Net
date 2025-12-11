@@ -1,4 +1,4 @@
 ﻿using HAMQTT.Integration;
-using HAMQTT.Integration.Template;
+using HAMQTT.Integration.IntegrationName;
 
 IntegrationApp.Run<Startup>();
