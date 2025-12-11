@@ -6,6 +6,8 @@ on:
     branches: [ "main" ]
     tags: [ 'v*.*.*' ]
     paths:
+      - .github/workflows/oxxio.yml
+      - .github/workflows/hamqtt-integration-workflow.yml
       - src/HAMQTT.Integration/**
       - src/HAMQTT.Integration.Oxxio/**
 jobs:

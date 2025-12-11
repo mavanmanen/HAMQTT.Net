@@ -6,6 +6,8 @@ on:
     branches: [ "main" ]
     tags: [ 'v*.*.*' ]
     paths:
+      - .github/workflows/integration-name.yml
+      - .github/workflows/hamqtt-integration-workflow.yml
       - HAMQTT.Integration/**
       - HAMQTT.Integration.IntegrationName/**
 jobs:
