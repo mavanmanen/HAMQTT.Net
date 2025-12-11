@@ -14,11 +14,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\HAMQTT.Integration\HAMQTT.Integration.csproj" />
+      <ProjectReference Include="..\..\..\HAMQTT.Integration\HAMQTT.Integration.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include=".template.config\template.json" />
+      <None Include="..\.template.config\template.json" />
     </ItemGroup>
 
 </Project>

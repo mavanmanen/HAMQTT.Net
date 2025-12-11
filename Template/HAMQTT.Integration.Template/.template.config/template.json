@@ -35,7 +35,7 @@
     "FixReference": {
       "type": "parameter",
       "isHidden": "true",
-      "replaces": "..\\..\\HAMQTT.Integration\\HAMQTT.Integration.csproj",
+      "replaces": "..\\..\\..\\HAMQTT.Integration\\HAMQTT.Integration.csproj",
       "defaultValue": "..\\HAMQTT.Integration\\HAMQTT.Integration.csproj"
     },
     "integration-name": {
