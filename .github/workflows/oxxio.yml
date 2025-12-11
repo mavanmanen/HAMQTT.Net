@@ -10,6 +10,7 @@ on:
       - HAMQTT.Integration.Oxxio/**
 jobs:
   build:
+    name: Integration Workflow
     uses: mavanmanen/.github/.github/workflows/hamqtt-integration-workflow.yml@main
     with:
       integration_name: Oxxio
