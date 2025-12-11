@@ -5,6 +5,7 @@
     .\hamqtt.ps1
     .\hamqtt.ps1 init
     .\hamqtt.ps1 update
+    .\hamqtt.ps1 clean
     .\hamqtt.ps1 template install
     .\hamqtt.ps1 integrations new
 #>
@@ -91,6 +92,7 @@ function Show-Usage {
     Write-Host "  hamqtt                                (Run in empty folder to clone repo)" -ForegroundColor Gray
     Write-Host "  hamqtt init                           (Initialize fresh project & install template)" -ForegroundColor Gray
     Write-Host "  hamqtt update                         (Update core scripts/libs from master)" -ForegroundColor Gray
+    Write-Host "  hamqtt clean                          (Remove temp files & production artifacts)" -ForegroundColor Gray
     Write-Host "  hamqtt template [install|update|remove] (Manage dotnet templates)" -ForegroundColor Gray
     Write-Host "  hamqtt integrations list              (List all integrations & status)" -ForegroundColor Gray
     Write-Host "  hamqtt integrations new [name]        (Create new integration)" -ForegroundColor Gray
@@ -112,6 +114,11 @@ switch ($Context) {
     "init" {
         Write-Host "▶ Running Initialization..." -ForegroundColor Cyan
         & "$ScriptsDir/Init-Project.ps1"
+    }
+
+    "clean" {
+        Write-Host "▶ Running Cleanup..." -ForegroundColor Cyan
+        & "$ScriptsDir/Clean-Project.ps1"
     }
 
     "update" {
