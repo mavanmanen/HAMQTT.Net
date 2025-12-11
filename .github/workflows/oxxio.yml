@@ -1,0 +1,13 @@
+name: HAMQTT Integration Workflow - Oxxio
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
+    paths:
+      - HAMQTT.Integration.Oxxio/**
+jobs:
+  build:
+    uses: mavanmanen/HAMQTT/.github/workflows/hamqtt-integration-workflow.yml@main
+    with:
+      integration_name: Oxxio
