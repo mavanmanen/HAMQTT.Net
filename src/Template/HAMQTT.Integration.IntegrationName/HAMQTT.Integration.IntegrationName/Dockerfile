@@ -18,7 +18,6 @@ WORKDIR /src
 COPY ["HAMQTT.Integration.IntegrationName.csproj", "./"]
 RUN dotnet restore
 COPY . .
-WORKDIR "/src/HAMQTT.Integration.IntegrationName"
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

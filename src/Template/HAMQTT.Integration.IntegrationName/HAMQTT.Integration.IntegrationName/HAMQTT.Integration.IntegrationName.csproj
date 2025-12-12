@@ -18,6 +18,9 @@
       <Content Include=".\workflows\integration-name.yml">
         <Link>.github/integration-name.yml</Link>
       </Content>
+      <Content Update="workflows\integration-name.yml">
+        <Link>integration-name.yml</Link>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

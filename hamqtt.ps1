@@ -308,6 +308,7 @@ switch ($Context) {
                 
                 if ($List -match $ShortName) {
                      Write-Host "   ✅ Template '$PackageId' is already installed." -ForegroundColor Green
+                     dotnet new update
                 } else {
                      Write-Host "   Installing template from NuGet..." -ForegroundColor Cyan
                      dotnet new install $PackageId

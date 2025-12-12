@@ -13,4 +13,4 @@ jobs:
     name: Integration Workflow
     uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-integration-workflow.yml@main
     with:
-      name: integration-name
+      name: 'IntegrationName'

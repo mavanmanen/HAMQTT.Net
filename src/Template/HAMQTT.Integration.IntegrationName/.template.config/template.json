@@ -16,7 +16,9 @@
     {
       "source": "./",
       "target": "./",
-      "include": [ "**/*" ],
+      "include": [
+        "**/*"
+      ],
       "exclude": [
         "**/[Bb]in/**",
         "**/[Oo]bj/**",
@@ -24,12 +26,15 @@
         "**/*.filelist",
         "**/*.user",
         "**/*.lock.json",
-        "**/workflows/**"
+        "integration-name.yml"
       ]
     },
     {
-      "source": "./HAMQTT.Integration.IntegrationName/workflows",
-      "target": "../.github/workflows"
+      "source": "./",
+      "target": "../.github/workflows/",
+      "include": [
+        "integration-name.yml"
+      ]
     }
   ],
   "primaryOutputs": [
