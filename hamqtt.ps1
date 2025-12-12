@@ -178,7 +178,6 @@ switch ($Context) {
                 foreach ($ItemPath in $CoreSafelist) {
                     $Source = Join-Path $TempDir $ItemPath
                     $DestFullPath = Join-Path $PSScriptRoot $ItemPath
-                    # FIX: Copy into the parent directory to prevent 'scripts/scripts' nesting
                     $DestParent = Split-Path $DestFullPath -Parent
 
                     if (Test-Path $Source) {
@@ -231,7 +230,6 @@ switch ($Context) {
                 $PackageId = "HAMQTT.Integration.Template"
                 $NuGetSource = "https://nuget.pkg.github.com/mavanmanen/index.json"
                 
-                # CHANGED: Use 'dotnet new update' for cleaner update process
                 dotnet new update --apply --nuget-source $NuGetSource
                 
                 Write-Host "   ✅ Template update check complete." -ForegroundColor Green
@@ -274,8 +272,7 @@ switch ($Context) {
             }
             "update" {
                 Write-Host "📦 Updating template from NuGet..." -ForegroundColor Cyan
-                # CHANGED: Use 'dotnet new update' instead of install --force
-                dotnet new update --apply --nuget-source $NuGetSource
+                dotnet new update --nuget-source $NuGetSource
             }
             "remove" {
                 Write-Host "🗑️ Removing template..." -ForegroundColor Cyan
