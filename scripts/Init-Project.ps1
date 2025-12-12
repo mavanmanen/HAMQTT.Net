@@ -25,7 +25,42 @@ if (-not (Test-Path $SrcPath)) {
     Write-Host "   📂 Created source directory: src/" -ForegroundColor Gray
 }
 
-# --- 1. Initialize .env File ---
+# --- 1. Create .NET Solution File ---
+Write-Host "`n📄 Configuring Solution..." -ForegroundColor Yellow
+
+# Check if a .sln already exists
+$ExistingSln = Get-ChildItem -Path $SrcPath -Filter "*.sln" | Select-Object -First 1
+
+if ($ExistingSln) {
+    Write-Host "   ℹ️  Solution file already exists: $($ExistingSln.Name). Skipping." -ForegroundColor Gray
+} else {
+    # Default name = Current Directory Name
+    $DefaultName = Split-Path $ProjectRoot -Leaf
+    
+    Write-Host "   Enter a name for the solution file (Default: $DefaultName)" -ForegroundColor Cyan
+    $SlnNameInput = Read-Host "   > Name"
+
+    if ([string]::IsNullOrWhiteSpace($SlnNameInput)) {
+        $SlnName = $DefaultName
+    } else {
+        $SlnName = $SlnNameInput
+    }
+
+    try {
+        # Create solution in src/
+        $SlnPath = Join-Path $SrcPath "$SlnName.sln"
+        
+        # We need to be inside src/ for dotnet new sln to act naturally or specify output
+        # dotnet new sln -n "Name" -o "src"
+        dotnet new sln -n $SlnName -o $SrcPath | Out-Null
+        
+        Write-Host "   ✅ Created solution: $SlnName.sln" -ForegroundColor Green
+    } catch {
+        Write-Error "   ❌ Failed to create solution file: $_"
+    }
+}
+
+# --- 2. Initialize .env File ---
 Write-Host "`n📝 Configuring Environment Variables..." -ForegroundColor Yellow
 
 if (-not (Test-Path $EnvFilePath)) {
@@ -40,7 +75,7 @@ MQTT_PASSWORD=password
     Write-Host "   ℹ️  .env file already exists. Skipping." -ForegroundColor Gray
 }
 
-# --- 2. Initialize Root Compose (Infrastructure) ---
+# --- 3. Initialize Root Compose (Infrastructure) ---
 Write-Host "`n🏗️  Configuring Infrastructure..." -ForegroundColor Yellow
 
 if (-not (Test-Path $RootComposePath)) {
@@ -112,7 +147,7 @@ volumes:
     Write-Host "   ℹ️  Root compose file already exists. Skipping." -ForegroundColor Gray
 }
 
-# --- 3. Initialize Home Assistant Config ---
+# --- 4. Initialize Home Assistant Config ---
 Write-Host "`n🏠 Configuring Home Assistant..." -ForegroundColor Yellow
 if (-not (Test-Path $HaConfigPath)) {
     New-Item -ItemType Directory -Path $HaConfigPath -Force | Out-Null
@@ -137,7 +172,7 @@ scene: !include scenes.yaml
     Write-Host "   ℹ️  Home Assistant config already exists. Skipping." -ForegroundColor Gray
 }
 
-# --- 4. Install Template ---
+# --- 5. Install Template ---
 Write-Host "`n📦 Verifying Template..." -ForegroundColor Yellow
 
 # Delegate template installation logic to the main wrapper
