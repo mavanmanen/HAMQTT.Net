@@ -80,6 +80,7 @@ function Get-IntegrationServiceBlock {
       context: ../../
       dockerfile: src/${ProjectFolderName}/Dockerfile
     env_file:
+      - .env
       - ../.env
     environment:
       - MQTT_HOST

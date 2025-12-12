@@ -46,20 +46,6 @@
       "fileRename": "IntegrationName",
       "isRequired": true
     },
-    "mqtt-host": {
-      "type": "parameter",
-      "datatype": "string",
-      "description": "MQTT Host",
-      "replaces": "MQTT_HOST_VALUE",
-      "isRequired": true
-    },
-    "mqtt-username": {
-      "type": "parameter",
-      "datatype": "string",
-      "description": "MQTT Username",
-      "replaces": "MQTT_USERNAME_VALUE",
-      "isRequired": true
-    },
     "UserSecretsId": {
       "type": "generated",
       "generator": "guid",
@@ -143,18 +129,6 @@
       "manualInstructions": [
         {
           "text": "Add project to solution"
-        }
-      ]
-    },
-    {
-      "actionId": "AC1156F7-BB77-4DB8-B28F-24EEBCCA1E5C",
-      "description": "Set your MQTT Password securely",
-      "manualInstructions": [
-        {
-          "text": "Project created! To set your MQTT password securely, run:"
-        },
-        {
-          "text": "dotnet user-secrets set 'MQTT_PASSWORD' 'YOUR_SECURE_PASSWORD'"
         }
       ]
     }

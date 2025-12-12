@@ -66,12 +66,11 @@ if ([string]::IsNullOrWhiteSpace($Context) -and -not (Test-Path $ScriptsDir)) {
             
             foreach ($ItemName in $CoreSafelist) {
                 $Source = Join-Path $TempDir $ItemName
-                $DestFullPath = Join-Path $PSScriptRoot $ItemName
-                # Copy into the parent to avoid nesting (e.g. scripts/scripts)
-                $DestParent = Split-Path $DestFullPath -Parent
+                $Destination = Join-Path $PSScriptRoot $ItemName
 
                 if (Test-Path $Source) {
-                    Copy-Item -Path $Source -Destination $DestParent -Recurse -Force
+                    # Recursively copy directory or file
+                    Copy-Item -Path $Source -Destination $Destination -Recurse -Force
                     Write-Host "      ✅ Initialized: $ItemName" -ForegroundColor Green
                 } else {
                     Write-Warning "      ⚠️  Missing from source: $ItemName"
@@ -227,7 +226,14 @@ switch ($Context) {
                     }
                 }
 
-                # 4. Cleanup
+                # 4. Auto-Update Template
+                Write-Host "`n📦 Checking for template updates..." -ForegroundColor Cyan
+                $PackageId = "HAMQTT.Integration.Template"
+                $NuGetSource = "https://nuget.pkg.github.com/mavanmanen/index.json"
+                dotnet new install $PackageId --nuget-source $NuGetSource --force --ignore-failed-sources | Out-Null
+                Write-Host "   ✅ Template update check complete." -ForegroundColor Green
+
+                # 5. Cleanup
                 Remove-Item -Path $TempDir -Recurse -Force
                 Write-Host "`n✨ Core update complete!" -ForegroundColor Cyan
 
