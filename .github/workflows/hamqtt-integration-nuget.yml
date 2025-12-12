@@ -75,11 +75,15 @@ jobs:
       - name: Pack
         run: dotnet pack src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
         
-      - name: Push to GitHub Packages
-        run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name == 'workflow_dispatch' && '' || '--skip-duplicate' }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hamqtt-integration
+          path: ./*.nupkg
+          if-no-files-found: error
 
   build-template:
-    needs: build-library
+    needs: prepare-version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -101,5 +105,35 @@ jobs:
       - name: Pack
         run: dotnet pack src/HAMQTT.Integration.Template.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
         
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hamqtt-integration-template
+          path: ./*.nupkg
+          if-no-files-found: error
+
+  publish-packages:
+    needs: [build-library, build-template]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download Library Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hamqtt-integration
+          path: packages
+
+      - name: Download Template Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hamqtt-integration-template
+          path: packages
+
       - name: Push to GitHub Packages
-        run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name == 'workflow_dispatch' && '' || '--skip-duplicate' }}
+        run: dotnet nuget push packages/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name == 'workflow_dispatch' && '' || '--skip-duplicate' }}
