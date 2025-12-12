@@ -29,7 +29,7 @@
     },
     {
       "source": "./HAMQTT.Integration.IntegrationName/workflows",
-      "target": "./.github/workflows"
+      "target": "../.github/workflows"
     }
   ],
   "primaryOutputs": [
@@ -50,18 +50,6 @@
       "type": "generated",
       "generator": "guid",
       "replaces": "USER_SECRETS_ID"
-    },
-    "FixReference": {
-      "type": "parameter",
-      "isHidden": "true",
-      "replaces": "..\\..\\..\\HAMQTT.Integration\\HAMQTT.Integration.csproj",
-      "defaultValue": "..\\HAMQTT.Integration\\HAMQTT.Integration.csproj"
-    },
-    "FixGithubActionReference": {
-      "type": "parameter",
-      "isHidden": "true",
-      "replaces": ".\\workflows",
-      "defaultValue": "..\\.github\\workflows"
     },
     "ReplaceUppercaseWithUnderscore": {
       "type": "generated",

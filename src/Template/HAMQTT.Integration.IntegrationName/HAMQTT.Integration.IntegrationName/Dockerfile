@@ -4,8 +4,6 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-
 ARG GITHUB_USERNAME
 ARG GITHUB_PAT
 
@@ -15,15 +13,17 @@ RUN dotnet nuget add source "https://nuget.pkg.github.com/mavanmanen/index.json"
     --username "$GITHUB_USERNAME" \
     --password "$GITHUB_PAT"
 
-COPY ["HAMQTT.Integration.IntegrationName/HAMQTT.Integration.IntegrationName.csproj", "HAMQTT.Integration.IntegrationName/"]
-RUN dotnet restore "HAMQTT.Integration.IntegrationName/HAMQTT.Integration.IntegrationName.csproj"
+WORKDIR /src
+
+COPY ["HAMQTT.Integration.IntegrationName.csproj", "./"]
+RUN dotnet restore
 COPY . .
 WORKDIR "/src/HAMQTT.Integration.IntegrationName"
-RUN dotnet build "./HAMQTT.Integration.IntegrationName.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./HAMQTT.Integration.IntegrationName.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

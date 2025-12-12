@@ -7,12 +7,10 @@ on:
     tags: [ 'v*.*.*' ]
     paths:
       - .github/workflows/integration-name.yml
-      - .github/workflows/hamqtt-integration-workflow.yml
-      - HAMQTT.Integration/**
       - HAMQTT.Integration.IntegrationName/**
 jobs:
   build:
     name: Integration Workflow
-    uses: mavanmanen/HAMQTT/.github/workflows/hamqtt-integration-workflow.yml@main
+    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-integration-workflow.yml@main
     with:
       name: integration-name
