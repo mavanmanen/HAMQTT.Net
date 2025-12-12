@@ -54,63 +54,19 @@ jobs:
 
   build-library:
     needs: prepare-version
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-          
-      - name: Restore dependencies
-        run: dotnet restore src/HAMQTT.Integration/HAMQTT.Integration.csproj
-        
-      - name: Build
-        run: dotnet build src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-restore --configuration Release /p:Version=${{ needs.prepare-version.outputs.version }}
-        
-      - name: Pack
-        run: dotnet pack src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
-        
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hamqtt-integration
-          path: ./*.nupkg
-          if-no-files-found: error
+    uses: ./.github/workflows/hamqtt-build-pack.yml
+    with:
+      project_path: src/HAMQTT.Integration/HAMQTT.Integration.csproj
+      version: ${{ needs.prepare-version.outputs.version }}
+      artifact_name: hamqtt-integration
 
   build-template:
     needs: prepare-version
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-          
-      - name: Restore dependencies
-        run: dotnet restore src/HAMQTT.Integration.Template.csproj
-        
-      - name: Build
-        run: dotnet build src/HAMQTT.Integration.Template.csproj --no-restore --configuration Release /p:Version=${{ needs.prepare-version.outputs.version }}
-        
-      - name: Pack
-        run: dotnet pack src/HAMQTT.Integration.Template.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
-        
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hamqtt-integration-template
-          path: ./*.nupkg
-          if-no-files-found: error
+    uses: ./.github/workflows/hamqtt-build-pack.yml
+    with:
+      project_path: src/HAMQTT.Integration.Template.csproj
+      version: ${{ needs.prepare-version.outputs.version }}
+      artifact_name: hamqtt-integration-template
 
   publish-packages:
     needs: [build-library, build-template]
