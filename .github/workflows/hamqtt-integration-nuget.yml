@@ -79,7 +79,7 @@ jobs:
         run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name == 'workflow_dispatch' && '' || '--skip-duplicate' }}
 
   build-template:
-    needs: prepare-version
+    needs: build-library
     runs-on: ubuntu-latest
     permissions:
       contents: read
