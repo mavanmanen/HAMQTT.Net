@@ -263,10 +263,8 @@ switch ($Context) {
 
                 # 4. Auto-Update Template
                 Write-Host "`n📦 Checking for template updates..." -ForegroundColor Cyan
-                $PackageId = "HAMQTT.Integration.Template"
-                $NuGetSource = "https://nuget.pkg.github.com/mavanmanen/index.json"
                 
-                dotnet new update --nuget-source $NuGetSource
+                dotnet new update
                 
                 Write-Host "   ✅ Template update check complete." -ForegroundColor Green
 
@@ -292,7 +290,6 @@ switch ($Context) {
     "template" {
         $PackageId = "HAMQTT.Integration.Template"
         $ShortName = "hamqtt-integration" # Short name as defined in the template config
-        $NuGetSource = "https://nuget.pkg.github.com/mavanmanen/index.json"
 
         switch ($Command) {
             "install" {
@@ -303,12 +300,14 @@ switch ($Context) {
                      Write-Host "   ✅ Template '$PackageId' is already installed." -ForegroundColor Green
                 } else {
                      Write-Host "   Installing template from NuGet..." -ForegroundColor Cyan
-                     dotnet new install $PackageId --nuget-source $NuGetSource
+                     # CHANGED: Removed --nuget-source
+                     dotnet new install $PackageId --ignore-failed-sources
                 }
             }
             "update" {
-                Write-Host "📦 Updating template from NuGet..." -ForegroundColor Cyan
-                dotnet new update --nuget-source $NuGetSource
+                Write-Host "📦 Updating templates..." -ForegroundColor Cyan
+                # CHANGED: Removed --nuget-source. 'dotnet new update' checks all configured sources.
+                dotnet new update
             }
             "remove" {
                 Write-Host "🗑️ Removing template..." -ForegroundColor Cyan

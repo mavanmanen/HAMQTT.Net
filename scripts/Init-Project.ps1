@@ -47,33 +47,78 @@ if ($ExistingSln) {
     }
 
     try {
-        # Create solution in src/
-        $SlnPath = Join-Path $SrcPath "$SlnName.sln"
-        
-        # We need to be inside src/ for dotnet new sln to act naturally or specify output
-        # dotnet new sln -n "Name" -o "src"
         dotnet new sln -n $SlnName -o $SrcPath | Out-Null
-        
         Write-Host "   ✅ Created solution: $SlnName.sln" -ForegroundColor Green
     } catch {
         Write-Error "   ❌ Failed to create solution file: $_"
     }
 }
 
-# --- 2. Initialize .env File ---
-Write-Host "`n📝 Configuring Environment Variables..." -ForegroundColor Yellow
+# --- 2. Configure Credentials & .env ---
+Write-Host "`n🔑 Configuring Credentials..." -ForegroundColor Yellow
 
-if (-not (Test-Path $EnvFilePath)) {
-    $DefaultEnvContent = @"
-MQTT_HOST=mosquitto
-MQTT_USERNAME=mqtt
-MQTT_PASSWORD=password
-"@
-    $DefaultEnvContent | Set-Content -Path $EnvFilePath
-    Write-Host "   ✅ Created .env file at: $EnvFilePath" -ForegroundColor Green
-} else {
-    Write-Host "   ℹ️  .env file already exists. Skipping." -ForegroundColor Gray
+# 2a. Load existing .env if present
+$EnvContent = @{}
+if (Test-Path $EnvFilePath) {
+    Get-Content $EnvFilePath | ForEach-Object {
+        if ($_ -match "^(.*?)=(.*)$") { $EnvContent[$matches[1]] = $matches[2] }
+    }
 }
+
+# 2b. Default Values
+if (-not $EnvContent.ContainsKey("MQTT_HOST")) { $EnvContent["MQTT_HOST"] = "mosquitto" }
+if (-not $EnvContent.ContainsKey("MQTT_USERNAME")) { $EnvContent["MQTT_USERNAME"] = "mqtt" }
+if (-not $EnvContent.ContainsKey("MQTT_PASSWORD")) { $EnvContent["MQTT_PASSWORD"] = "password" }
+
+# 2c. Prompt for GitHub Credentials (Required for NuGet & Docker Build)
+if (-not $EnvContent.ContainsKey("GITHUB_USERNAME") -or [string]::IsNullOrWhiteSpace($EnvContent["GITHUB_USERNAME"])) {
+    Write-Host "   👤 GitHub Username is required for package access." -ForegroundColor Cyan
+    $UserInput = Read-Host "   > Username"
+    if (-not [string]::IsNullOrWhiteSpace($UserInput)) { $EnvContent["GITHUB_USERNAME"] = $UserInput }
+}
+
+if (-not $EnvContent.ContainsKey("GITHUB_PAT") -or [string]::IsNullOrWhiteSpace($EnvContent["GITHUB_PAT"])) {
+    Write-Host "   🔑 GitHub Personal Access Token (PAT) is required." -ForegroundColor Cyan
+    Write-Host "      (Permissions required: read:packages)" -ForegroundColor Gray
+    $PatInput = Read-Host "   > PAT"
+    if (-not [string]::IsNullOrWhiteSpace($PatInput)) { $EnvContent["GITHUB_PAT"] = $PatInput }
+}
+
+# 2d. Configure Local NuGet Source
+if ($EnvContent["GITHUB_USERNAME"] -and $EnvContent["GITHUB_PAT"]) {
+    $SourceName = "github-mavanmanen"
+    $SourceUrl = "https://nuget.pkg.github.com/mavanmanen/index.json"
+    
+    Write-Host "   📦 Configuring local NuGet source '$SourceName'..." -ForegroundColor Gray
+    try {
+        # Check if source exists
+        $SourceList = dotnet nuget list source | Out-String
+        if ($SourceList -match $SourceName) {
+             # Update existing
+             dotnet nuget update source $SourceName `
+                --username $EnvContent["GITHUB_USERNAME"] `
+                --password $EnvContent["GITHUB_PAT"] `
+                --store-password-in-clear-text | Out-Null
+             Write-Host "      ✅ Updated existing NuGet source." -ForegroundColor Green
+        } else {
+             # Add new
+             dotnet nuget add source $SourceUrl `
+                --name $SourceName `
+                --username $EnvContent["GITHUB_USERNAME"] `
+                --password $EnvContent["GITHUB_PAT"] `
+                --store-password-in-clear-text | Out-Null
+             Write-Host "      ✅ Added new NuGet source." -ForegroundColor Green
+        }
+    } catch {
+        Write-Warning "      ⚠️  Failed to configure NuGet source: $_"
+    }
+}
+
+# 2e. Save .env file
+$FinalEnvContent = $EnvContent.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }
+$FinalEnvContent | Set-Content -Path $EnvFilePath
+Write-Host "   ✅ Environment variables saved to: $EnvFilePath" -ForegroundColor Green
+
 
 # --- 3. Initialize Root Compose (Infrastructure) ---
 Write-Host "`n🏗️  Configuring Infrastructure..." -ForegroundColor Yellow

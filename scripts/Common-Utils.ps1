@@ -75,10 +75,11 @@ function Get-IntegrationServiceBlock {
     # Indented by 2 spaces to match 'services:' children
     return @"
   hamqtt-integration-${KebabName}:
-    image: hamqtt-integration-${KebabName}
     build:
-      context: ../../
-      dockerfile: src/${ProjectFolderName}/Dockerfile
+      context: .
+      args:
+        - GITHUB_USERNAME=${GITHUB_USERNAME}
+        - GITHUB_PAT=${GITHUB_PAT}
     env_file:
       - .env
       - ../.env
