@@ -66,11 +66,12 @@ if ([string]::IsNullOrWhiteSpace($Context) -and -not (Test-Path $ScriptsDir)) {
             
             foreach ($ItemName in $CoreSafelist) {
                 $Source = Join-Path $TempDir $ItemName
-                $Destination = Join-Path $PSScriptRoot $ItemName
+                $DestFullPath = Join-Path $PSScriptRoot $ItemName
+                # Copy into the parent to avoid nesting (e.g. scripts/scripts)
+                $DestParent = Split-Path $DestFullPath -Parent
 
                 if (Test-Path $Source) {
-                    # Recursively copy directory or file
-                    Copy-Item -Path $Source -Destination $Destination -Recurse -Force
+                    Copy-Item -Path $Source -Destination $DestParent -Recurse -Force
                     Write-Host "      ✅ Initialized: $ItemName" -ForegroundColor Green
                 } else {
                     Write-Warning "      ⚠️  Missing from source: $ItemName"
@@ -177,18 +178,19 @@ switch ($Context) {
                 
                 foreach ($ItemPath in $CoreSafelist) {
                     $Source = Join-Path $TempDir $ItemPath
-                    $Destination = Join-Path $PSScriptRoot $ItemPath
+                    $DestFullPath = Join-Path $PSScriptRoot $ItemPath
+                    # FIX: Copy into the parent directory to prevent 'scripts/scripts' nesting
+                    $DestParent = Split-Path $DestFullPath -Parent
 
                     if (Test-Path $Source) {
                         # Ensure destination directory exists
-                        $DestParent = Split-Path $Destination -Parent
                         if (-not (Test-Path $DestParent)) {
                             New-Item -ItemType Directory -Path $DestParent -Force | Out-Null
                         }
 
                         # --- Safeguard for Self-Update (Locked Files) ---
                         if ($ItemPath -eq "hamqtt.ps1") {
-                            $BackupPath = "$Destination.old"
+                            $BackupPath = "$DestFullPath.old"
                             # Cleanup potential leftover from previous run (if not locked anymore)
                             if (Test-Path $BackupPath) { 
                                 Remove-Item -Path $BackupPath -Force -ErrorAction SilentlyContinue 
@@ -196,7 +198,7 @@ switch ($Context) {
                             
                             # Rename running script to release lock for the new file
                             try {
-                                Rename-Item -Path $Destination -NewName "$($ItemPath).old" -Force -ErrorAction Stop
+                                Rename-Item -Path $DestFullPath -NewName "$($ItemPath).old" -Force -ErrorAction Stop
                                 Write-Host "      ℹ️  Renamed locked file to allow update: $ItemPath" -ForegroundColor DarkGray
                             } catch {
                                 Write-Warning "      ⚠️  Could not rename $ItemPath. Update might fail if file is locked."
@@ -205,7 +207,7 @@ switch ($Context) {
                         # ------------------------------------------------
 
                         # Copy (Force allows overwriting)
-                        Copy-Item -Path $Source -Destination $Destination -Recurse -Force
+                        Copy-Item -Path $Source -Destination $DestParent -Recurse -Force
                         Write-Host "      ✅ Updated: $ItemPath" -ForegroundColor Green
                     } else {
                         Write-Host "      ⚠️  Skipped (Not found in remote): $ItemPath" -ForegroundColor DarkGray
@@ -252,18 +254,19 @@ switch ($Context) {
         switch ($Command) {
             "install" {
                 Write-Host "📦 Checking template status..." -ForegroundColor Cyan
+                # CHANGED: Removed unsupported --columns flag.
                 $List = dotnet new list | Out-String
                 
                 if ($List -match $ShortName) {
                      Write-Host "   ✅ Template '$PackageId' is already installed." -ForegroundColor Green
                 } else {
                      Write-Host "   Installing template from NuGet..." -ForegroundColor Cyan
-                     dotnet new install $PackageId --nuget-source $NuGetSource
+                     dotnet new install $PackageId --nuget-source $NuGetSource --ignore-failed-sources
                 }
             }
             "update" {
                 Write-Host "📦 Updating template from NuGet..." -ForegroundColor Cyan
-                dotnet new install $PackageId --nuget-source $NuGetSource --force
+                dotnet new install $PackageId --nuget-source $NuGetSource --force --ignore-failed-sources
             }
             "remove" {
                 Write-Host "🗑️ Removing template..." -ForegroundColor Cyan
