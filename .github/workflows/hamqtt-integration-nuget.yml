@@ -1,0 +1,40 @@
+﻿name: Publish HAMQTT.Integration Nuget
+
+on:
+  push:
+    branches: [ "develop" ]
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore src/HAMQTT.Integration/HAMQTT.Integration.csproj
+
+    - name: Set Version (Develop)
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
+        echo "VERSION=${PROJECT_VERSION}-dev" >> $GITHUB_ENV
+      
+    - name: Build
+      run: dotnet build src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-restore --configuration Release ${{ env.VERSION != '' && format('/p:Version={0}', env.VERSION) || '' }}
+      
+    - name: Pack
+      run: dotnet pack src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-build --configuration Release --output . ${{ env.VERSION != '' && format('/p:PackageVersion={0}', env.VERSION) || '' }}
+      
+    - name: Push to GitHub Packages
+      run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
