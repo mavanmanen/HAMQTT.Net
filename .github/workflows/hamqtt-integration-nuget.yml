@@ -7,44 +7,90 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  prepare-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set Version (Tag)
+        id: set_version_tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Set Version (Develop)
+        id: set_version_develop
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
+          echo "version=${PROJECT_VERSION}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Consolidate Version
+        id: set_version
+        run: |
+          if [ ! -z "${{ steps.set_version_tag.outputs.version }}" ]; then
+            echo "version=${{ steps.set_version_tag.outputs.version }}" >> "$GITHUB_OUTPUT"
+          elif [ ! -z "${{ steps.set_version_develop.outputs.version }}" ]; then
+            echo "version=${{ steps.set_version_develop.outputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+             echo "No version determined"
+             exit 1
+          fi
+
+  build-library:
+    needs: prepare-version
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          
+      - name: Restore dependencies
+        run: dotnet restore src/HAMQTT.Integration/HAMQTT.Integration.csproj
         
-    - name: Restore dependencies
-      run: |
-        dotnet restore src/HAMQTT.Integration/HAMQTT.Integration.csproj
-        dotnet restore src/HAMQTT.Integration.Template.csproj
+      - name: Build
+        run: dotnet build src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-restore --configuration Release /p:Version=${{ needs.prepare-version.outputs.version }}
+        
+      - name: Pack
+        run: dotnet pack src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
+        
+      - name: Push to GitHub Packages
+        run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
-    - name: Set Version (Tag)
-      if: startsWith(github.ref, 'refs/tags/v')
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
-    - name: Set Version (Develop)
-      if: github.ref == 'refs/heads/develop'
-      run: |
-        PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
-        echo "VERSION=${PROJECT_VERSION}-dev.${{ github.run_number }}" >> $GITHUB_ENV
+  build-template:
+    needs: prepare-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
       
-    - name: Build
-      run: |
-        dotnet build src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-restore --configuration Release ${{ env.VERSION != '' && format('/p:Version={0}', env.VERSION) || '' }}
-        dotnet build src/HAMQTT.Integration.Template.csproj --no-restore --configuration Release ${{ env.VERSION != '' && format('/p:Version={0}', env.VERSION) || '' }}
-      
-    - name: Pack
-      run: |
-        dotnet pack src/HAMQTT.Integration/HAMQTT.Integration.csproj --no-build --configuration Release --output . ${{ env.VERSION != '' && format('/p:PackageVersion={0}', env.VERSION) || '' }}
-        dotnet pack src/HAMQTT.Integration.Template.csproj --no-build --configuration Release --output . ${{ env.VERSION != '' && format('/p:PackageVersion={0}', env.VERSION) || '' }}
-      
-    - name: Push to GitHub Packages
-      run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          
+      - name: Restore dependencies
+        run: dotnet restore src/HAMQTT.Integration.Template.csproj
+        
+      - name: Build
+        run: dotnet build src/HAMQTT.Integration.Template.csproj --no-restore --configuration Release /p:Version=${{ needs.prepare-version.outputs.version }}
+        
+      - name: Pack
+        run: dotnet pack src/HAMQTT.Integration.Template.csproj --no-build --configuration Release --output . /p:PackageVersion=${{ needs.prepare-version.outputs.version }}
+        
+      - name: Push to GitHub Packages
+        run: dotnet nuget push *.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
