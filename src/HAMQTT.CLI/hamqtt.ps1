@@ -62,11 +62,11 @@ switch ($Context)
                 if ($BareMode)
                 {
                     Write-Host "   ℹ️  Running in BARE mode." -ForegroundColor Yellow
-                    docker-compose -f $ComposeFile up -d --remove-orphans mosquitto homeassistant
+                    docker compose -f $ComposeFile up -d --remove-orphans mosquitto homeassistant
                 }
                 else
                 {
-                    docker-compose -f $ComposeFile up -d --remove-orphans
+                    docker compose -f $ComposeFile up --build -d --remove-orphans
                 }
                 Write-Host "   ✅ Environment started." -ForegroundColor Green
             }
