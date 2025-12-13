@@ -15,19 +15,18 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Constants ---
-$RootComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
-$SrcPath = Join-Path $ProjectRoot "src"
+$RootComposePath = Join-Path $ProjectRoot "docker-compose.dev.yml"
 
 Write-Host "🚀 Starting Integration Synchronization..." -ForegroundColor Cyan
 
 # --- 1. Scan Disk for Actual Integrations ---
-Write-Host "   🔍 Scanning '$SrcPath' for projects..." -ForegroundColor Yellow
-if (-not (Test-Path $SrcPath))
+Write-Host "   🔍 Scanning '$ProjectRoot' for projects..." -ForegroundColor Yellow
+if (-not (Test-Path $ProjectRoot))
 {
-    Write-Error "   ❌ Source directory not found at $SrcPath"
+    Write-Error "   ❌ Source directory not found at $ProjectRoot"
 }
 
-$IntegrationDirs = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*"
+$IntegrationDirs = Get-ChildItem -Path $ProjectRoot -Directory -Filter "HAMQTT.Integration.*"
 $FoundProjects = @()
 
 foreach ($dir in $IntegrationDirs)
@@ -158,4 +157,4 @@ else
     Write-Host "   (No active integrations found)" -ForegroundColor Gray
 }
 
-Write-Host "`n   👉 To apply changes, run: docker-compose -f src/docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor Gray
+Write-Host "`n   👉 To apply changes, run: docker-compose -f docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor Gray

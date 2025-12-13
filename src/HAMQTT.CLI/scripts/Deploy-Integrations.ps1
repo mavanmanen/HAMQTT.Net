@@ -20,8 +20,6 @@ if ( [string]::IsNullOrEmpty($OutputDirectory))
     $OutputDirectory = $ProjectRoot
 }
 
-$SrcPath = Join-Path $ProjectRoot "src"
-
 # --- 1. Prepare Output Directory ---
 if (-not (Test-Path $OutputDirectory))
 {
@@ -48,12 +46,12 @@ else
 }
 
 # --- 3. Scan for Integrations ---
-Write-Host "   🔍 Scanning 'src' for integrations..." -ForegroundColor Yellow
-$Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*"
+Write-Host "   🔍 Scanning for integrations..." -ForegroundColor Yellow
+$Integrations = Get-ChildItem -Path $ProjectRoot -Directory -Filter "HAMQTT.Integration.*"
 
 if ($Integrations.Count -eq 0)
 {
-    Write-Warning "   ⚠️  No integrations found in src/ folder."
+    Write-Warning "   ⚠️  No integrations found."
 }
 
 # --- 4. Build Docker Compose Content ---

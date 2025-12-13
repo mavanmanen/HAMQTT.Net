@@ -19,9 +19,6 @@ $ErrorActionPreference = "Stop"
 # Resolve scripts relative to this file (which lives in the tool install dir now)
 $ScriptsDir = Join-Path $PSScriptRoot "scripts"
 
-# Flag to signal we are running safely
-$Global:HAMQTT_WRAPPER_ACTIVE = $true
-
 # --- Helper: Print Usage ---
 function Show-Usage
 {
@@ -50,9 +47,8 @@ switch ($Context)
     "run" {
         if ($Command -eq "dev")
         {
-            # We assume the user is running this IN their project root
             $ProjectRoot = Get-Location
-            $ComposeFile = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
+            $ComposeFile = Join-Path $ProjectRoot "docker-compose.dev.yml"
             $BareMode = $ExtraArgs -contains "--bare"
 
             if (-not (Test-Path $ComposeFile))

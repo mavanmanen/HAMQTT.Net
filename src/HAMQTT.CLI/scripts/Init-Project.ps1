@@ -11,25 +11,17 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Constants ---
-$SrcPath = Join-Path $ProjectRoot "src"
-$EnvFilePath = Join-Path $ProjectRoot "src/.env"
-$HaConfigPath = Join-Path $ProjectRoot "src/ha_config"
-$RootComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
+$EnvFilePath = Join-Path $ProjectRoot ".env"
+$HaConfigPath = Join-Path $ProjectRoot "ha_config"
+$RootComposePath = Join-Path $ProjectRoot "docker-compose.dev.yml"
 
 Write-Host "🚀 Starting Project Initialization..." -ForegroundColor Cyan
-
-# --- 0. Ensure Source Directory Exists ---
-if (-not (Test-Path $SrcPath))
-{
-    New-Item -ItemType Directory -Path $SrcPath -Force | Out-Null
-    Write-Host "   📂 Created source directory: src/" -ForegroundColor Gray
-}
 
 # --- 1. Create .NET Solution File ---
 Write-Host "`n📄 Configuring Solution..." -ForegroundColor Yellow
 
 # Check if a .sln already exists
-$ExistingSln = Get-ChildItem -Path $SrcPath -Filter "*.sln" | Select-Object -First 1
+$ExistingSln = Get-ChildItem -Path $ProjectRoot -Filter "*.sln" | Select-Object -First 1
 
 if ($ExistingSln)
 {
@@ -54,7 +46,7 @@ else
 
     try
     {
-        dotnet new sln -n $SlnName -o $SrcPath | Out-Null
+        dotnet new sln -n $SlnName -o $ProjectRoot | Out-Null
         Write-Host "   ✅ Created solution: $SlnName.sln" -ForegroundColor Green
     }
     catch
@@ -156,6 +148,8 @@ $FinalEnvContent = $EnvContent.GetEnumerator() | ForEach-Object { "$( $_.Key )=$
 $FinalEnvContent | Set-Content -Path $EnvFilePath
 Write-Host "   ✅ Environment variables saved to: $EnvFilePath" -ForegroundColor Green
 
+# 2f. Add .env file to .gitignore
+
 
 # --- 3. Initialize Root Compose (Infrastructure) ---
 Write-Host "`n🏗️  Configuring Infrastructure..." -ForegroundColor Yellow
@@ -163,9 +157,6 @@ Write-Host "`n🏗️  Configuring Infrastructure..." -ForegroundColor Yellow
 if (-not (Test-Path $RootComposePath))
 {
     $RootComposeContent = @'
-# Location: src/docker-compose.dev.yml
-# This file manages the shared infrastructure (Mosquitto, Home Assistant) and includes integrations.
-
 include:
   # New-Integration.ps1 will append new projects here
 
@@ -177,7 +168,6 @@ services:
     restart: unless-stopped
     ports:
       - "1883:1883"
-    # Load .env from same directory (src/)
     env_file:
       - .env
     # Dynamically create config and password file on startup
@@ -198,7 +188,6 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      # Map config from src/ha_config (sibling directory)
       - ./ha_config:/config
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
@@ -254,7 +243,7 @@ scene: !include scenes.yaml
     "" | Set-Content -Path (Join-Path $HaConfigPath "scenes.yaml")
     "" | Set-Content -Path (Join-Path $HaConfigPath "groups.yaml")
 
-    Write-Host "   ✅ Created default Home Assistant configuration in src/ha_config." -ForegroundColor Green
+    Write-Host "   ✅ Created default Home Assistant configuration in ha_config/." -ForegroundColor Green
 }
 else
 {

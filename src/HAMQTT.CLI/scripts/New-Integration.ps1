@@ -36,12 +36,11 @@ if ( [string]::IsNullOrWhiteSpace($IntegrationName))
 }
 
 # --- Constants ---
-$RootComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
-$SrcPath = Join-Path $ProjectRoot "src"
+$RootComposePath = Join-Path $ProjectRoot "docker-compose.dev.yml"
 
 # --- 1. Setup Variables ---
 $ProjectFolderName = "HAMQTT.Integration.${IntegrationName}"
-$ProjectRelPath = Join-Path $SrcPath $ProjectFolderName
+$ProjectRelPath = Join-Path $ProjectRoot $ProjectFolderName
 
 Write-Host "🚀 Starting setup for '${ProjectFolderName}'..." -ForegroundColor Cyan
 
@@ -51,11 +50,11 @@ $RootLocation = Get-Location
 
 try
 {
-    if (-not (Test-Path $SrcPath))
+    if (-not (Test-Path $ProjectRoot))
     {
-        New-Item -ItemType Directory -Path $SrcPath | Out-Null
+        New-Item -ItemType Directory -Path $ProjectRoot | Out-Null
     }
-    Set-Location $SrcPath
+    Set-Location $ProjectRoot
 
     # Assumes template is already installed via 'hamqtt init' or 'hamqtt template install'
     dotnet new hamqtt-integration `
@@ -130,4 +129,4 @@ else
     Write-Warning "   ⚠️  Root compose file not found at ${RootComposePath}. Run Init-Project.ps1 first."
 }
 
-Write-Host "`n✨ Setup Complete! Run 'docker-compose -f src/docker-compose.dev.yml up -d' to start." -ForegroundColor Cyan
+Write-Host "`n✨ Setup Complete! Run 'docker-compose -f docker-compose.dev.yml up -d' to start." -ForegroundColor Cyan

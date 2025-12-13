@@ -2,7 +2,7 @@
 .SYNOPSIS
     Lists all HAMQTT Integration projects and their deployment status.
 .DESCRIPTION
-    Scans src/ and compares dev/prod compose files.
+    Scans and compares dev/prod compose files.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -11,18 +11,17 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Constants ---
-$SrcPath = Join-Path $ProjectRoot "src"
-$DevComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
+$DevComposePath = Join-Path $ProjectRoot "docker-compose.dev.yml"
 $ProdComposePath = Join-Path $ProjectRoot "docker-compose.yml"
 
 # --- 1. Gather Data ---
-if (-not (Test-Path $SrcPath))
+if (-not (Test-Path $ProjectRoot))
 {
-    Write-Warning "Source directory not found at $SrcPath"
+    Write-Warning "Source directory not found at $ProjectRoot"
     return
 }
 
-$Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*"
+$Integrations = Get-ChildItem -Path $ProjectRoot -Directory -Filter "HAMQTT.Integration.*"
 
 if ($Integrations.Count -eq 0)
 {

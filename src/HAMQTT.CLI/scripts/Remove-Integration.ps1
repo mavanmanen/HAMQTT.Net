@@ -17,20 +17,19 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Constants ---
-$RootComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
-$SrcPath = Join-Path $ProjectRoot "src"
+$RootComposePath = Join-Path $ProjectRoot "docker-compose.dev.yml"
 
 # --- Interactive Mode ---
 if ( [string]::IsNullOrWhiteSpace($IntegrationName))
 {
-    if (-not (Test-Path $SrcPath))
+    if (-not (Test-Path $ProjectRoot))
     {
         Write-Error "Source directory not found."
         exit 1
     }
 
     # Get list of integrations (excluding base project)
-    $Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*" |
+    $Integrations = Get-ChildItem -Path $ProjectRoot -Directory -Filter "HAMQTT.Integration.*" |
             Where-Object { $_.Name -ne "HAMQTT.Integration" }
 
     if ($Integrations.Count -eq 0)
@@ -76,7 +75,7 @@ if ( [string]::IsNullOrWhiteSpace($IntegrationName))
 
 # --- 1. Identify Paths ---
 $ProjectFolderName = "HAMQTT.Integration.${IntegrationName}"
-$ProjectRelPath = Join-Path $SrcPath $ProjectFolderName
+$ProjectRelPath = Join-Path $ProjectRoot $ProjectFolderName
 
 Write-Host "🗑️  Starting removal for '${IntegrationName}'..." -ForegroundColor Cyan
 
@@ -128,4 +127,4 @@ else
 # --- 4. Final Instructions ---
 Write-Host "`n✨ Removal Complete!" -ForegroundColor Cyan
 Write-Host "   ⚠️  To apply changes and remove the running container, run:" -ForegroundColor Gray
-Write-Host "      docker-compose -f src/docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor White
+Write-Host "      docker-compose -f docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor White
