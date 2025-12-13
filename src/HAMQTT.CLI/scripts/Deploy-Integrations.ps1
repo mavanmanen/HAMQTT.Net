@@ -27,24 +27,6 @@ if (-not (Test-Path $OutputDirectory))
 }
 Write-Host "🚀 Starting deployment generation in '$OutputDirectory'..." -ForegroundColor Cyan
 
-# --- 2. Generate Production .env (Conditional) ---
-$TargetEnvPath = Join-Path $OutputDirectory ".env"
-
-if (-not (Test-Path $TargetEnvPath))
-{
-    $EnvContent = @"
-MQTT_HOST=
-MQTT_USERNAME=
-MQTT_PASSWORD=
-"@
-    $EnvContent | Set-Content -Path $TargetEnvPath
-    Write-Host "   ✅ Generated new .env template." -ForegroundColor Green
-}
-else
-{
-    Write-Host "   ℹ️  Existing .env found. Skipping update to preserve credentials." -ForegroundColor Gray
-}
-
 # --- 3. Scan for Integrations ---
 Write-Host "   🔍 Scanning for integrations..." -ForegroundColor Yellow
 $Integrations = Get-ChildItem -Path $ProjectRoot -Directory -Filter "HAMQTT.Integration.*"
@@ -78,6 +60,8 @@ foreach ($dir in $Integrations)
     $ImageUrl = "${ImageBaseUrl}/${KebabName}:latest"
 
     Write-Host "      Found: $CleanName -> Image: $ImageUrl" -ForegroundColor Gray
+    
+    
 
     $ServicesYaml += @"
   hamqtt-integration-${KebabName}:
@@ -85,8 +69,6 @@ foreach ($dir in $Integrations)
     image: ${ImageUrl}
     restart: unless-stopped
     network_mode: bridge
-    env_file:
-      - .env
 
 "@
 }
@@ -94,6 +76,11 @@ foreach ($dir in $Integrations)
 # --- 5. Assemble Final File ---
 $FinalCompose = @"
 version: '3.8'
+
+environemnt:
+  - MQTT_HOST=
+  - MQTT_USERNAME=
+  - MQTT_PASSWORD=
 
 services:
 $ServicesYaml

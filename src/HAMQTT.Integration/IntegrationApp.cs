@@ -6,44 +6,33 @@ using ToMqttNet;
 
 namespace HAMQTT.Integration;
 
-public static class IntegrationApp
+internal class IntegrationApp(string nodeId, string host, int? port, string username, string password, IntegrationStartup? startup) : IIntegrationApp
 {
-    private static  WebApplication? _app;
+    private static WebApplication? _app;
 
-    private static WebApplicationBuilder CreateBuilder()
+    private WebApplicationBuilder CreateBuilder()
     {
         var builder = WebApplication.CreateSlimBuilder();
         builder.Configuration.AddEnvironmentVariables();
         builder.Configuration.AddUserSecrets(Assembly.GetEntryAssembly()!);
         builder.Services.AddMqttConnection().Configure(options =>
         {
-            options.NodeId = builder.Configuration["MQTT_NODE_ID"]!;
-            options.Server = builder.Configuration["MQTT_HOST"];
-            options.Port = builder.Configuration.GetValue<int?>("MQTT_PORT") ?? 1883;
-            options.Username = builder.Configuration["MQTT_USERNAME"];
-            options.Password = builder.Configuration["MQTT_PASSWORD"];
+            options.NodeId = nodeId;
+            options.Server = host;
+            options.Port = port ?? 1883;
+            options.Username = username;
+            options.Password = password;
         });
         builder.Services.AddScheduler();
         return builder;
     }
 
-    private static void Run(WebApplicationBuilder builder)
+    public void Run()
     {
+        var builder = CreateBuilder();
+        startup?.RegisterServices(builder.Services);
         _app = builder.Build();
         _app.UseIntegrations();
         _app.Run();
-    }
-    
-    public static void Run()
-    {
-        var builder = CreateBuilder();
-        Run(builder);
-    }
-
-    public static void Run<TStartup>() where TStartup : IntegrationStartup, new()
-    {
-        var builder = CreateBuilder();
-        new TStartup().RegisterServices(builder.Services);
-        Run(builder);
     }
 }
