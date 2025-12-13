@@ -6,8 +6,8 @@
 #>
 
 param (
-    # Changed to False to allow custom interactive prompt
-    [Parameter(Mandatory=$false)]
+# Changed to False to allow custom interactive prompt
+    [Parameter(Mandatory = $false)]
     [string]$IntegrationName
 )
 
@@ -21,27 +21,31 @@ $RootComposePath = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
 $SrcPath = Join-Path $ProjectRoot "src"
 
 # --- Interactive Mode ---
-if ([string]::IsNullOrWhiteSpace($IntegrationName)) {
-    if (-not (Test-Path $SrcPath)) {
+if ( [string]::IsNullOrWhiteSpace($IntegrationName))
+{
+    if (-not (Test-Path $SrcPath))
+    {
         Write-Error "Source directory not found."
         exit 1
     }
 
     # Get list of integrations (excluding base project)
-    $Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*" | 
-                    Where-Object { $_.Name -ne "HAMQTT.Integration" }
+    $Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*" |
+            Where-Object { $_.Name -ne "HAMQTT.Integration" }
 
-    if ($Integrations.Count -eq 0) {
+    if ($Integrations.Count -eq 0)
+    {
         Write-Warning "No integrations found to remove."
         exit 0
     }
 
     Write-Host "🗑️  Select an integration to remove:" -ForegroundColor Cyan
-    
-    $Map = @{}
+
+    $Map = @{ }
     $Index = 1
 
-    foreach ($dir in $Integrations) {
+    foreach ($dir in $Integrations)
+    {
         $CleanName = Get-CleanIntegrationName $dir.Name
         Write-Host "   [$Index] $CleanName"
         $Map[$Index] = $CleanName
@@ -51,19 +55,22 @@ if ([string]::IsNullOrWhiteSpace($IntegrationName)) {
     $Selection = Read-Host "`n   > Enter number or name"
 
     # Validate Selection
-    if ($Selection -match "^\d+$" -and $Map.ContainsKey([int]$Selection)) {
+    if ($Selection -match "^\d+$" -and $Map.ContainsKey([int]$Selection))
+    {
         # User entered a valid number
         $IntegrationName = $Map[[int]$Selection]
     }
-    elseif ($Integrations | Where-Object { (Get-CleanIntegrationName $_.Name) -eq $Selection }) {
+    elseif ($Integrations | Where-Object { (Get-CleanIntegrationName $_.Name) -eq $Selection })
+    {
         # User entered a valid name
         $IntegrationName = $Selection
     }
-    else {
+    else
+    {
         Write-Error "Invalid selection."
         exit 1
     }
-    
+
     Write-Host "   Selected: $IntegrationName" -ForegroundColor Gray
 }
 
@@ -74,36 +81,47 @@ $ProjectRelPath = Join-Path $SrcPath $ProjectFolderName
 Write-Host "🗑️  Starting removal for '${IntegrationName}'..." -ForegroundColor Cyan
 
 # --- 2. Update Root Docker Compose (Remove Include) ---
-if (Test-Path $RootComposePath) {
+if (Test-Path $RootComposePath)
+{
     Write-Host "   🔗 Checking root compose file..." -ForegroundColor Yellow
-    
+
     $Content = Get-Content $RootComposePath -Raw
     $IncludeString = "${ProjectFolderName}/docker-compose.dev.yml"
-    
+
     $Lines = $Content -split "`r?`n"
     $NewLines = $Lines | Where-Object { -not ($_ -match [regex]::Escape($IncludeString)) }
 
-    if ($Lines.Count -ne $NewLines.Count) {
+    if ($Lines.Count -ne $NewLines.Count)
+    {
         $NewLines -join "`n" | Set-Content -Path $RootComposePath
         Write-Host "   ✅ Removed include reference from ${RootComposePath}" -ForegroundColor Green
-    } else {
+    }
+    else
+    {
         Write-Host "   ℹ️  No reference found in ${RootComposePath} (skipping)" -ForegroundColor Gray
     }
-} else {
+}
+else
+{
     Write-Warning "   ⚠️  Root compose file not found at ${RootComposePath}"
 }
 
 # --- 3. Remove Project Directory ---
-if (Test-Path $ProjectRelPath) {
+if (Test-Path $ProjectRelPath)
+{
     Write-Host "   📂 Removing project directory..." -ForegroundColor Yellow
-    try {
+    try
+    {
         Remove-Item -Path $ProjectRelPath -Recurse -Force -ErrorAction Stop
         Write-Host "   ✅ Deleted directory: ${ProjectRelPath}" -ForegroundColor Green
     }
-    catch {
+    catch
+    {
         Write-Error "   ❌ Failed to delete directory: $_"
     }
-} else {
+}
+else
+{
     Write-Host "   ℹ️  Directory not found: ${ProjectRelPath} (skipping)" -ForegroundColor Gray
 }
 

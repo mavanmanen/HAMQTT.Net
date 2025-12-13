@@ -6,11 +6,11 @@
 #>
 
 param (
-    # CHANGED: Mandatory=$false so we can prompt interactively if missing
-    [Parameter(Mandatory=$false)]
+# CHANGED: Mandatory=$false so we can prompt interactively if missing
+    [Parameter(Mandatory = $false)]
     [string]$IntegrationName,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [switch]$UpdateTemplate
 )
 
@@ -20,14 +20,16 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Interactive Mode ---
-if ([string]::IsNullOrWhiteSpace($IntegrationName)) {
+if ( [string]::IsNullOrWhiteSpace($IntegrationName))
+{
     Write-Host "📝 New Integration Setup" -ForegroundColor Cyan
     Write-Host "   Please enter the name for the new integration." -ForegroundColor Yellow
     Write-Host "   👉 Tip: Use PascalCase (e.g., 'SolarEdge', 'HomeAssistant')." -ForegroundColor Gray
-    
+
     $IntegrationName = Read-Host "   > Name"
 
-    if ([string]::IsNullOrWhiteSpace($IntegrationName)) {
+    if ( [string]::IsNullOrWhiteSpace($IntegrationName))
+    {
         Write-Error "Integration name is required."
         exit 1
     }
@@ -47,8 +49,12 @@ Write-Host "🚀 Starting setup for '${ProjectFolderName}'..." -ForegroundColor 
 Write-Host "`n🔨 Generating Project..." -ForegroundColor Yellow
 $RootLocation = Get-Location
 
-try {
-    if (-not (Test-Path $SrcPath)) { New-Item -ItemType Directory -Path $SrcPath | Out-Null }
+try
+{
+    if (-not (Test-Path $SrcPath))
+    {
+        New-Item -ItemType Directory -Path $SrcPath | Out-Null
+    }
     Set-Location $SrcPath
 
     # Assumes template is already installed via 'hamqtt init' or 'hamqtt template install'
@@ -56,14 +62,19 @@ try {
         --integration-name $IntegrationName `
         --force
 
-    if ($LASTEXITCODE -ne 0) { throw "dotnet new failed. Ensure template is installed using 'hamqtt template install'" }
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "dotnet new failed. Ensure template is installed using 'hamqtt template install'"
+    }
 }
-catch {
+catch
+{
     Write-Error "Failed to generate project: ${_}"
     Set-Location $RootLocation
     exit 1
 }
-finally {
+finally
+{
     Set-Location $RootLocation
 }
 Write-Host "   ✅ Project generated at: ${ProjectRelPath}" -ForegroundColor Green
@@ -81,32 +92,41 @@ Write-Host "   ✅ Created: ${ComposePath}" -ForegroundColor Green
 # --- 4. Update Root Docker Compose (Includes) ---
 Write-Host "`n🔗 Registering Integration in Root Docker Compose..." -ForegroundColor Yellow
 
-if (Test-Path $RootComposePath) {
+if (Test-Path $RootComposePath)
+{
     $RootContent = Get-Content $RootComposePath -Raw
     $IncludeLine = "  - ${ProjectFolderName}/docker-compose.dev.yml"
 
-    if ($RootContent -notmatch [regex]::Escape($IncludeLine)) {
-        if ($RootContent -match "(?m)^include:\s*$") {
+    if ($RootContent -notmatch [regex]::Escape($IncludeLine))
+    {
+        if ($RootContent -match "(?m)^include:\s*$")
+        {
             $NewContent = $RootContent -replace "(?m)^include:\s*$", "include:`n${IncludeLine}"
             $NewContent | Set-Content -Path $RootComposePath
             Write-Host "   ✅ Added reference to root compose file." -ForegroundColor Green
         }
-        elseif ($RootContent -match "(?m)^include:") {
+        elseif ($RootContent -match "(?m)^include:")
+        {
             $Lines = Get-Content $RootComposePath
             $IncludeIndex = $Lines | Select-String -Pattern "^include:" -Line | Select-Object -ExpandProperty LineNumber
-            
+
             $Lines = [System.Collections.Generic.List[string]]$Lines
             $Lines.Insert($IncludeIndex, $IncludeLine)
             $Lines | Set-Content -Path $RootComposePath
             Write-Host "   ✅ Appended reference to existing include list." -ForegroundColor Green
         }
-        else {
+        else
+        {
             Write-Warning "   ⚠️  Could not find 'include:' section in root compose file. Please add manually."
         }
-    } else {
+    }
+    else
+    {
         Write-Host "   ℹ️  Reference already exists in root compose file." -ForegroundColor Gray
     }
-} else {
+}
+else
+{
     Write-Warning "   ⚠️  Root compose file not found at ${RootComposePath}. Run Init-Project.ps1 first."
 }
 

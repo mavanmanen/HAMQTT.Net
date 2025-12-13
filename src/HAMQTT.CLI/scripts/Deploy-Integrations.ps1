@@ -4,7 +4,7 @@
 #>
 
 param (
-    # Defaults to the repository root
+# Defaults to the repository root
     [string]$OutputDirectory,
     [string]$ImageBaseUrl = "ghcr.io/mavanmanen/hamqtt.net"
 )
@@ -15,14 +15,16 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/Common-Utils.ps1"
 
 # --- Constants ---
-if ([string]::IsNullOrEmpty($OutputDirectory)) {
+if ( [string]::IsNullOrEmpty($OutputDirectory))
+{
     $OutputDirectory = $ProjectRoot
 }
 
 $SrcPath = Join-Path $ProjectRoot "src"
 
 # --- 1. Prepare Output Directory ---
-if (-not (Test-Path $OutputDirectory)) {
+if (-not (Test-Path $OutputDirectory))
+{
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 }
 Write-Host "🚀 Starting deployment generation in '$OutputDirectory'..." -ForegroundColor Cyan
@@ -30,7 +32,8 @@ Write-Host "🚀 Starting deployment generation in '$OutputDirectory'..." -Foreg
 # --- 2. Generate Production .env (Conditional) ---
 $TargetEnvPath = Join-Path $OutputDirectory ".env"
 
-if (-not (Test-Path $TargetEnvPath)) {
+if (-not (Test-Path $TargetEnvPath))
+{
     $EnvContent = @"
 MQTT_HOST=
 MQTT_USERNAME=
@@ -38,7 +41,9 @@ MQTT_PASSWORD=
 "@
     $EnvContent | Set-Content -Path $TargetEnvPath
     Write-Host "   ✅ Generated new .env template." -ForegroundColor Green
-} else {
+}
+else
+{
     Write-Host "   ℹ️  Existing .env found. Skipping update to preserve credentials." -ForegroundColor Gray
 }
 
@@ -46,20 +51,26 @@ MQTT_PASSWORD=
 Write-Host "   🔍 Scanning 'src' for integrations..." -ForegroundColor Yellow
 $Integrations = Get-ChildItem -Path $SrcPath -Directory -Filter "HAMQTT.Integration.*"
 
-if ($Integrations.Count -eq 0) {
+if ($Integrations.Count -eq 0)
+{
     Write-Warning "   ⚠️  No integrations found in src/ folder."
 }
 
 # --- 4. Build Docker Compose Content ---
 $ServicesYaml = ""
 
-foreach ($dir in $Integrations) {
+foreach ($dir in $Integrations)
+{
     # Ignore the base library project
-    if ($dir.Name -eq "HAMQTT.Integration") { continue }
+    if ($dir.Name -eq "HAMQTT.Integration")
+    {
+        continue
+    }
 
     # Skip if not a valid project (must have a compose file)
     $ProjectComposePath = Join-Path $dir.FullName "docker-compose.dev.yml"
-    if (-not (Test-Path $ProjectComposePath)) {
+    if (-not (Test-Path $ProjectComposePath))
+    {
         continue
     }
 

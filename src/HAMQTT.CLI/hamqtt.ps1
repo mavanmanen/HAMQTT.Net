@@ -5,13 +5,13 @@
     This is now called by the .NET Wrapper, not directly by the user.
 #>
 param(
-    [Parameter(Position=0)]
+    [Parameter(Position = 0)]
     [string]$Context,
 
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [string]$Command,
 
-    [Parameter(ValueFromRemainingArguments=$true)]
+    [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$ExtraArgs
 )
 
@@ -23,7 +23,8 @@ $ScriptsDir = Join-Path $PSScriptRoot "scripts"
 $Global:HAMQTT_WRAPPER_ACTIVE = $true
 
 # --- Helper: Print Usage ---
-function Show-Usage {
+function Show-Usage
+{
     Write-Host "Usage:" -ForegroundColor Yellow
     Write-Host "  hamqtt init                           (Initialize fresh project)" -ForegroundColor Gray
     Write-Host "  hamqtt run dev [--bare]               (Start local dev env)" -ForegroundColor Gray
@@ -32,42 +33,54 @@ function Show-Usage {
     Write-Host "  hamqtt integrations [new|list|remove] (Manage integrations)" -ForegroundColor Gray
 }
 
-if ([string]::IsNullOrWhiteSpace($Context)) {
+if ( [string]::IsNullOrWhiteSpace($Context))
+{
     Show-Usage
     exit
 }
 
 $Context = $Context.ToLower()
 
-switch ($Context) {
+switch ($Context)
+{
     "init" {
         & "$ScriptsDir/Init-Project.ps1"
     }
 
     "run" {
-        if ($Command -eq "dev") {
+        if ($Command -eq "dev")
+        {
             # We assume the user is running this IN their project root
             $ProjectRoot = Get-Location
             $ComposeFile = Join-Path $ProjectRoot "src/docker-compose.dev.yml"
             $BareMode = $ExtraArgs -contains "--bare"
 
-            if (-not (Test-Path $ComposeFile)) {
+            if (-not (Test-Path $ComposeFile))
+            {
                 Write-Error "Dev compose file not found at $ComposeFile. Run 'hamqtt init' first."
             }
 
             Write-Host "🚀 Starting Local Development Environment..." -ForegroundColor Cyan
-            try {
-                if ($BareMode) {
+            try
+            {
+                if ($BareMode)
+                {
                     Write-Host "   ℹ️  Running in BARE mode." -ForegroundColor Yellow
                     docker-compose -f $ComposeFile up -d --remove-orphans mosquitto homeassistant
-                } else {
+                }
+                else
+                {
                     docker-compose -f $ComposeFile up -d --remove-orphans
                 }
                 Write-Host "   ✅ Environment started." -ForegroundColor Green
-            } catch {
+            }
+            catch
+            {
                 Write-Error "   ❌ Failed: $_"
             }
-        } else {
+        }
+        else
+        {
             Write-Warning "Unknown command '$Command'. Use 'dev'."
         }
     }
@@ -86,34 +99,73 @@ switch ($Context) {
         $PackageId = "HAMQTT.Integration.Template"
         $ShortName = "hamqtt-integration"
 
-        switch ($Command) {
+        switch ($Command)
+        {
             "install" {
-                dotnet new install $PackageId --ignore-failed-sources
+                Write-Host "📦 Checking template status..." -ForegroundColor Cyan
+                $List = dotnet new list | Out-String
+
+                if ($List -match $ShortName)
+                {
+                    Write-Host "   ✅ Template '$PackageId' is already installed." -ForegroundColor Green
+                }
+                else
+                {
+                    Write-Host "   Installing template from NuGet..." -ForegroundColor Cyan
+                    dotnet new install $PackageId
+                }
             }
             "update" {
+                Write-Host "📦 Updating templates..." -ForegroundColor Cyan
                 dotnet new update
             }
             "remove" {
+                dWrite-Host "🗑️ Removing template..." -ForegroundColor Cyan
                 dotnet new uninstall $PackageId
             }
-            Default { Write-Warning "Unknown command." }
+            Default {
+                Write-Warning "Unknown command '$Command'. Use install, update, or remove."
+            }
         }
     }
 
     "integrations" {
-        switch ($Command) {
-            "list" { & "$ScriptsDir/List-Integrations.ps1" }
+        switch ($Command)
+        {
+            "list" {
+                & "$ScriptsDir/List-Integrations.ps1"
+            }
             "new" {
-                $Name = if ($ExtraArgs) { $ExtraArgs[0] } else { $null }
+                $Name = if ($ExtraArgs)
+                {
+                    $ExtraArgs[0]
+                }
+                else
+                {
+                    $null
+                }
                 & "$ScriptsDir/New-Integration.ps1" -IntegrationName $Name
             }
             "remove" {
-                $Name = if ($ExtraArgs) { $ExtraArgs[0] } else { $null }
+                $Name = if ($ExtraArgs)
+                {
+                    $ExtraArgs[0]
+                }
+                else
+                {
+                    $null
+                }
                 & "$ScriptsDir/Remove-Integration.ps1" -IntegrationName $Name
             }
-            "update" { & "$ScriptsDir/Update-Integrations.ps1" }
-            "deploy" { & "$ScriptsDir/Deploy-Integrations.ps1" }
-            Default { Show-Usage }
+            "update" {
+                & "$ScriptsDir/Update-Integrations.ps1"
+            }
+            "deploy" {
+                & "$ScriptsDir/Deploy-Integrations.ps1"
+            }
+            Default {
+                Show-Usage
+            }
         }
     }
 

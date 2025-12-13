@@ -8,13 +8,17 @@ $Global:ProjectRoot = Get-Location
 
 # --- Shared Functions ---
 
-function Get-KebabCase {
+function Get-KebabCase
+{
     param ([string]$InputString)
-    
-    if ([string]::IsNullOrWhiteSpace($InputString)) { return $InputString }
+
+    if ( [string]::IsNullOrWhiteSpace($InputString))
+    {
+        return $InputString
+    }
 
     # CRITICAL: Use -creplace (Case-Sensitive) so [a-z] doesn't match [A-Z].
-    
+
     # 1. Handle Acronyms (e.g., XMLParser -> XML-Parser)
     #    Matches an Uppercase followed by Uppercase+Lowercase
     $s = $InputString -creplace '([A-Z])([A-Z][a-z])', '$1-$2'
@@ -26,7 +30,8 @@ function Get-KebabCase {
     return $s.ToLower()
 }
 
-function Get-CleanIntegrationName {
+function Get-CleanIntegrationName
+{
     <#
     .SYNOPSIS
         Removes the 'HAMQTT.Integration.' prefix from a folder name.
@@ -35,32 +40,50 @@ function Get-CleanIntegrationName {
     return $FolderName -replace "^HAMQTT\.Integration\.", ""
 }
 
-function Set-EnvVariable {
+function Set-EnvVariable
+{
     param (
         [string]$Path,
         [string]$Key,
         [string]$Value
     )
-    if (-not (Test-Path $Path)) { New-Item -Path $Path -ItemType File -Force | Out-Null }
-    
+    if (-not (Test-Path $Path))
+    {
+        New-Item -Path $Path -ItemType File -Force | Out-Null
+    }
+
     $Content = Get-Content -Path $Path -ErrorAction SilentlyContinue
-    if ($null -eq $Content) { $Content = @() }
-    
+    if ($null -eq $Content)
+    {
+        $Content = @()
+    }
+
     $Pattern = "^${Key}\s*="
-    if ($Content -match $Pattern) {
-        $Content = $Content | ForEach-Object { if ($_ -match $Pattern) { "${Key}=${Value}" } else { $_ } }
-    } else {
+    if ($Content -match $Pattern)
+    {
+        $Content = $Content | ForEach-Object { if ($_ -match $Pattern)
+        {
+            "${Key}=${Value}"
+        }
+        else
+        {
+            $_
+        } }
+    }
+    else
+    {
         $Content += "${Key}=${Value}"
     }
     $Content | Set-Content -Path $Path
 }
 
-function Get-IntegrationServiceBlock {
+function Get-IntegrationServiceBlock
+{
     param ($KebabName, $ProjectFolderName)
-    
+
     # Returns the YAML string for the service definition
     # Indented by 2 spaces to match 'services:' children
-    
+
     return @"
   hamqtt-integration-${KebabName}:
     container_name: hamqtt-integration-${KebabName}
@@ -80,16 +103,17 @@ function Get-IntegrationServiceBlock {
 "@
 }
 
-function New-IntegrationComposeFile {
+function New-IntegrationComposeFile
+{
     <#
     .SYNOPSIS
         Generates a fresh docker-compose.dev.yml file.
     #>
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$IntegrationName,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$OutputPath
     )
 
@@ -106,17 +130,18 @@ $ServiceBlock
     $ComposeContent | Set-Content -Path $OutputPath
 }
 
-function Update-IntegrationServiceInCompose {
+function Update-IntegrationServiceInCompose
+{
     <#
     .SYNOPSIS
         Updates ONLY the hamqtt-integration service definition within an existing file.
         Preserves other manually added services.
     #>
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$IntegrationName,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$FilePath
     )
 
@@ -137,20 +162,24 @@ function Update-IntegrationServiceInCompose {
     # ^\s{2}\S     : ...we find the start of the NEXT service (2 spaces + non-whitespace)
     # |            : OR
     # \Z           : ...we reach the End of File
-    
+
     $Regex = "(?ms)^\s{2}${ServiceName}:.*?(?=^\s{2}\S|\Z)"
 
-    if ($CurrentContent -match $Regex) {
+    if ($CurrentContent -match $Regex)
+    {
         $UpdatedContent = $CurrentContent -replace $Regex, $NewServiceBlock
         $UpdatedContent | Set-Content -Path $FilePath
         return $true # Updated
-    } else {
+    }
+    else
+    {
         # Edge Case: The file exists but this specific service key isn't found (maybe renamed?)
         # In this case, we append it to the services block if possible, or warn.
-        if ($CurrentContent -match "^services:") {
-             $UpdatedContent = $CurrentContent -replace "^services:", "services:`n${NewServiceBlock}"
-             $UpdatedContent | Set-Content -Path $FilePath
-             return $true # Injected
+        if ($CurrentContent -match "^services:")
+        {
+            $UpdatedContent = $CurrentContent -replace "^services:", "services:`n${NewServiceBlock}"
+            $UpdatedContent | Set-Content -Path $FilePath
+            return $true # Injected
         }
         return $false # Could not locate service or services block
     }
