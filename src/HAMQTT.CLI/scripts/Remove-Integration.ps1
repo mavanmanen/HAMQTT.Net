@@ -107,7 +107,27 @@ else
     Write-Warning "   ⚠️  Root compose file not found at ${RootComposePath}"
 }
 
-# --- 3. Remove Project Directory ---
+# --- 3. Remove from Solution ---
+$SolutionFile = Get-ChildItem -Path $ProjectRoot -Filter "*.sln" | Select-Object -First 1
+$CsprojPath = Join-Path $ProjectRelPath "${ProjectFolderName}.csproj"
+
+if ($SolutionFile -and (Test-Path $CsprojPath))
+{
+    Write-Host "   🔗 Removing from solution..." -ForegroundColor Yellow
+    
+    dotnet sln $SolutionFile.FullName remove $CsprojPath | Out-Null
+    
+    if ($LASTEXITCODE -eq 0)
+    {
+        Write-Host "   ✅ Removed project from solution." -ForegroundColor Green
+    }
+    else
+    {
+        Write-Warning "   ⚠️  Failed to remove project from solution (Exit Code: $LASTEXITCODE)"
+    }
+}
+
+# --- 4. Remove Project Directory ---
 if (Test-Path $ProjectRelPath)
 {
     Write-Host "   📂 Removing project directory..." -ForegroundColor Yellow
@@ -126,7 +146,7 @@ else
     Write-Host "   ℹ️  Directory not found: ${ProjectRelPath} (skipping)" -ForegroundColor Gray
 }
 
-# --- 4. Final Instructions ---
+# --- 5. Final Instructions ---
 Write-Host "`n✨ Removal Complete!" -ForegroundColor Cyan
 Write-Host "   ⚠️  To apply changes and remove the running container, run:" -ForegroundColor Gray
 Write-Host "      docker-compose -f docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor White
