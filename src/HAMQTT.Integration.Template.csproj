@@ -24,6 +24,6 @@
     <ItemGroup>
         <Content Include="Template\**\*" Exclude="Template\**\bin\**;Template\**\obj\**"/>
         <Compile Remove="**\*" />
-        <None Remove="HAMQTT.Integration\**;.gitignore;Template\**\bin\**;Template\**\obj\**" />
+        <None Remove="HAMQTT.Integration\**;HAMQTT.CLI\**;.gitignore;Template\**\bin\**;Template\**\obj\**" />
     </ItemGroup>
 </Project>

@@ -30,8 +30,8 @@
       ]
     },
     {
-      "source": "./",
-      "target": "../../.github/workflows/",
+      "source": "./workflows/",
+      "target": "../.github/workflows/",
       "include": [
         "integration-name.yml"
       ]
