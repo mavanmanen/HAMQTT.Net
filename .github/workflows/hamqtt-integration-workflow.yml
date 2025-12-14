@@ -62,6 +62,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=min
+          build-args: |
+            GITHUB_USERNAME=${{ github.actor }}
+            GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
+            
 
       - name: Trigger Portainer Webhook
         if: ${{ inputs.portainer_webhook != '' }}
