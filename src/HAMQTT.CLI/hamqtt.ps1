@@ -192,7 +192,34 @@ switch ($Context)
                 & "$ScriptsDir/Update-Integrations.ps1" -ProjectRoot $ProjectRootArg
             }
             "deploy" {
-                & "$ScriptsDir/Deploy-Integrations.ps1" -ProjectRoot $ProjectRootArg
+                $MqttHost = $null
+                $MqttUsername = $null
+                $MqttPassword = $null
+
+                # Parse args
+                for ($i = 0; $i -lt $ExtraArgs.Count; $i++) {
+                    $arg = $ExtraArgs[$i]
+                    if ($arg -eq "--mqtt-host") {
+                        if ($i + 1 -lt $ExtraArgs.Count) {
+                            $MqttHost = $ExtraArgs[$i + 1]
+                            $i++
+                        }
+                    }
+                    elseif ($arg -eq "--mqtt-username") {
+                        if ($i + 1 -lt $ExtraArgs.Count) {
+                            $MqttUsername = $ExtraArgs[$i + 1]
+                            $i++
+                        }
+                    }
+                    elseif ($arg -eq "--mqtt-password") {
+                        if ($i + 1 -lt $ExtraArgs.Count) {
+                            $MqttPassword = $ExtraArgs[$i + 1]
+                            $i++
+                        }
+                    }
+                }
+
+                & "$ScriptsDir/Deploy-Integrations.ps1" -ProjectRoot $ProjectRootArg -MqttHost $MqttHost -MqttUsername $MqttUsername -MqttPassword $MqttPassword
             }
             Default {
                 Show-Usage

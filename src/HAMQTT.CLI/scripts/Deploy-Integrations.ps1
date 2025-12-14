@@ -7,13 +7,36 @@ param (
 # Defaults to the repository root
     [string]$OutputDirectory,
     [string]$ImageBaseUrl = "ghcr.io/mavanmanen/hamqtt.net",
-    [string]$ProjectRoot
+    [string]$ProjectRoot,
+
+    [Parameter(Mandatory = $false)]
+    [string]$MqttHost,
+
+    [Parameter(Mandatory = $false)]
+    [string]$MqttUsername,
+
+    [Parameter(Mandatory = $false)]
+    [string]$MqttPassword
 )
 
 $ErrorActionPreference = "Stop"
 
 # --- Import Shared Functions & Assert Wrapper ---
 . "$PSScriptRoot/Common-Utils.ps1"
+
+# --- Prompt for Credentials if Missing ---
+if ([string]::IsNullOrWhiteSpace($MqttHost)) {
+    $MqttHost = Read-Host "Enter MQTT Host"
+}
+
+if ([string]::IsNullOrWhiteSpace($MqttUsername)) {
+    $MqttUsername = Read-Host "Enter MQTT Username"
+}
+
+if ([string]::IsNullOrWhiteSpace($MqttPassword)) {
+    $MqttPassword = Read-Host -AsSecureString "Enter MQTT Password"
+    $MqttPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MqttPassword))
+}
 
 # --- Constants ---
 if ( [string]::IsNullOrEmpty($OutputDirectory))
@@ -85,9 +108,9 @@ $FinalCompose = @"
 version: '3.8'
 
 x-env: &environment
-  MQTT_HOST: #HOST
-  MQTT_USERNAME: #USERNAME
-  MQTT_PASSWORD: #PASSWORD
+  MQTT_HOST: ${MqttHost}
+  MQTT_USERNAME: ${MqttUsername}
+  MQTT_PASSWORD: ${MqttPassword}
 
 services:
 $ServicesYaml
