@@ -15,11 +15,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include=".\workflows\integration-name.yml">
-        <Link>.github/integration-name.yml</Link>
-      </Content>
-      <Content Update="workflows\integration-name.yml">
-        <Link>integration-name.yml</Link>
+      <Content Include="..\.github\workflows\integration-name.yml">
+        <Link>.github\integration-name.yml</Link>
       </Content>
     </ItemGroup>
 
