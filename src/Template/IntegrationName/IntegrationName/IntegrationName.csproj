@@ -7,7 +7,7 @@
         <IsPackable>false</IsPackable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <UserSecretsId>USER_SECRETS_ID</UserSecretsId>
-        <RootNamespace>HAMQTT.Integration.IntegrationName</RootNamespace>
+        <RootNamespace>IntegrationName</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

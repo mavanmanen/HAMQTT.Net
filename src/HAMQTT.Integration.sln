@@ -12,10 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{605B6A57-5635-4CF4-BC34-B48659F07E23}"
 	ProjectSection(SolutionItems) = preProject
-		Template\HAMQTT.Integration.IntegrationName\.template.config\template.json = Template\HAMQTT.Integration.IntegrationName\.template.config\template.json
+		Template\IntegrationName\.template.config\template.json = Template\IntegrationName\.template.config\template.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HAMQTT.Integration.IntegrationName", "Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName.csproj", "{DB2DCB3C-3FDE-4848-9744-ACAB2F936788}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationName", "Template\IntegrationName\IntegrationName\IntegrationName.csproj", "{DB2DCB3C-3FDE-4848-9744-ACAB2F936788}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HAMQTT.Integration.Template", "HAMQTT.Integration.Template.csproj", "{E693B78E-3758-44CB-A497-320E9C70DC8F}"
 EndProject

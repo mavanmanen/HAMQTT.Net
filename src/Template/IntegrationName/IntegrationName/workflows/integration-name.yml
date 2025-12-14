@@ -7,9 +7,15 @@ on:
     paths:
       - .github/workflows/integration-name.yml
       - HAMQTT.Integration.IntegrationName/**
+
+permissions:
+  contents: read
+  packages: write
+  
 jobs:
   build:
     name: Integration Workflow
     uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-integration-workflow.yml@main
     with:
       name: 'IntegrationName'
+      directory: '/IntegrationName'

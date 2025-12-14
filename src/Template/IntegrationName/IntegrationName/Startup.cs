@@ -1,4 +1,6 @@
-﻿namespace HAMQTT.Integration.IntegrationName;
+﻿using HAMQTT.Integration;
+
+namespace IntegrationName;
 
 public class Startup : IntegrationStartup
 {

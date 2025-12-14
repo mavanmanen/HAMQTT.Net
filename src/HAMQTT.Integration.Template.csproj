@@ -25,5 +25,23 @@
         <Content Include="Template\**\*" Exclude="Template\**\bin\**;Template\**\obj\**"/>
         <Compile Remove="**\*" />
         <None Remove="HAMQTT.Integration\**;HAMQTT.CLI\**;.gitignore;Template\**\bin\**;Template\**\obj\**" />
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\workflows\integration-name.yml">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\workflows\integration-name.yml</Link>
+        </Content>
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\.env">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\.env</Link>
+        </Content>
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\Dockerfile">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\Dockerfile</Link>
+        </Content>
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\IntegrationNameIntegration.cs">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\IntegrationNameIntegration.cs</Link>
+        </Content>
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\Program.cs">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\Program.cs</Link>
+        </Content>
+        <Content Update="Template\HAMQTT.Integration.IntegrationName\IntegrationName\Startup.cs">
+          <Link>Template\HAMQTT.Integration.IntegrationName\HAMQTT.Integration.IntegrationName\Startup.cs</Link>
+        </Content>
     </ItemGroup>
 </Project>

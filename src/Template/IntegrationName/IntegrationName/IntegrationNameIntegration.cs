@@ -1,7 +1,8 @@
-﻿using HomeAssistantDiscoveryNet;
+﻿using HAMQTT.Integration;
+using HomeAssistantDiscoveryNet;
 using ToMqttNet;
 
-namespace HAMQTT.Integration.IntegrationName;
+namespace IntegrationName;
 
 internal sealed class IntegrationNameIntegration(IMqttConnectionService mqtt) : Integration(mqtt)
 {
@@ -22,7 +23,7 @@ internal sealed class IntegrationNameIntegration(IMqttConnectionService mqtt) : 
             },
             Origin = new MqttDiscoveryConfigOrigin
             {
-                Name = "HAMQTT.Integration.IntegrationName"
+                Name = "IntegrationName"
             },
             StateTopic = StateTopic
         };

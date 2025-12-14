@@ -26,11 +26,11 @@
         "**/*.filelist",
         "**/*.user",
         "**/*.lock.json",
-        "HAMQTT.Integration.IntegrationName/workflows/**"
+        "IntegrationName/workflows/**"
       ]
     },
     {
-      "source": "./HAMQTT.Integration.IntegrationName/workflows/",
+      "source": "./IntegrationName/workflows/",
       "target": ".github/workflows/",
       "include": [
         "*.yml"
@@ -39,7 +39,7 @@
   ],
   "primaryOutputs": [
     {
-      "path": "HAMQTT.Integration.IntegrationName/HAMQTT.Integration.IntegrationName.csproj"
+      "path": "IntegrationName/IntegrationName.csproj"
     }
   ],
   "symbols": {
