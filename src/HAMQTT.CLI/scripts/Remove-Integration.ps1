@@ -146,7 +146,26 @@ if ($SolutionFile -and (Test-Path $CsprojPath))
     }
 }
 
-# --- 4. Remove Project Directory ---
+# --- 4. Remove Workflow File ---
+$KebabName = Get-KebabCase $IntegrationName
+$WorkflowPath = Join-Path $ProjectRoot ".." ".github" "workflows" "${KebabName}.yml"
+$WorkflowPath = [System.IO.Path]::GetFullPath($WorkflowPath)
+
+if (Test-Path $WorkflowPath)
+{
+    Write-Host "   🤖 Removing workflow file..." -ForegroundColor Yellow
+    try
+    {
+        Remove-Item -Path $WorkflowPath -Force -ErrorAction Stop
+        Write-Host "   ✅ Deleted workflow: ${WorkflowPath}" -ForegroundColor Green
+    }
+    catch
+    {
+        Write-Error "   ❌ Failed to delete workflow: $_"
+    }
+}
+
+# --- 5. Remove Project Directory ---
 if (Test-Path $ProjectRelPath)
 {
     Write-Host "   📂 Removing project directory..." -ForegroundColor Yellow
@@ -165,7 +184,7 @@ else
     Write-Host "   ℹ️  Directory not found: ${ProjectRelPath} (skipping)" -ForegroundColor Gray
 }
 
-# --- 5. Final Instructions ---
+# --- 6. Final Instructions ---
 Write-Host "`n✨ Removal Complete!" -ForegroundColor Cyan
 Write-Host "   ⚠️  To apply changes and remove the running container, run:" -ForegroundColor Gray
 Write-Host "      docker-compose -f docker-compose.dev.yml up -d --remove-orphans" -ForegroundColor White
