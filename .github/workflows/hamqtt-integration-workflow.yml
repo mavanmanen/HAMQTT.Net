@@ -3,7 +3,7 @@ name: HAMQTT Integration Workflow
 on:
   workflow_call:
     inputs:
-      integration_name:
+      name:
         required: true
         type: string
         description: "The name of the integration (e.g., my-integration)"
@@ -14,7 +14,7 @@ on:
         
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/${{ inputs.integration_name }}
+  IMAGE_NAME: ${{ github.repository }}/${{ inputs.name }}
 
 jobs:
   build-and-push:
@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./src/
-          file: ./src/HAMQTT.Integration.${{ inputs.integration_name }}/Dockerfile
+          file: ./src/HAMQTT.Integration.${{ inputs.name }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
