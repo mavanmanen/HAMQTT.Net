@@ -34,8 +34,8 @@ if ([string]::IsNullOrWhiteSpace($MqttUsername)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($MqttPassword)) {
-    $MqttPassword = Read-Host -AsSecureString "Enter MQTT Password"
-    $MqttPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MqttPassword))
+    $SecurePass = Read-Host -AsSecureString "Enter MQTT Password"
+    $MqttPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass))
 }
 
 # --- Constants ---
