@@ -7,6 +7,10 @@ on:
         required: true
         type: string
         description: "The name of the integration (e.g., my-integration)"
+      directory:
+        required: true
+        type: string
+        description: "Path to the integration directory (e.g., ./HAMQTT.Integration.Name/"
       portainer_webhook:
         required: false
         type: string
@@ -55,8 +59,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./HAMQTT.Integration.${{ inputs.name }}/Dockerfile
+          context: ${{ inputs.directory }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
