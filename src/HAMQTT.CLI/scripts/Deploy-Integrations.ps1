@@ -6,7 +6,6 @@
 param (
 # Defaults to the repository root
     [string]$OutputDirectory,
-    [string]$ImageBaseUrl = "ghcr.io/mavanmanen/hamqtt.net",
     [string]$ProjectRoot,
 
     [Parameter(Mandatory = $false)]
@@ -23,6 +22,30 @@ $ErrorActionPreference = "Stop"
 
 # --- Import Shared Functions & Assert Wrapper ---
 . "$PSScriptRoot/Common-Utils.ps1"
+
+# --- Determine Image Base URL from Git ---
+try
+{
+    $OriginUrl = git config --get remote.origin.url
+    if ([string]::IsNullOrWhiteSpace($OriginUrl))
+    {
+        throw "Git remote 'origin' not found."
+    }
+
+    # Normalize URL (Handle HTTPS and SSH)
+    # Remove protocol and domain (github.com)
+    $RepoPath = $OriginUrl -replace '^(https?://|git@)github\.com[:/]', ''
+    # Remove .git suffix
+    $RepoPath = $RepoPath -replace '\.git$', ''
+    
+    $ImageBaseUrl = "ghcr.io/${RepoPath}".ToLower()
+    Write-Host "   ℹ️  Detected Image Base URL: $ImageBaseUrl" -ForegroundColor Gray
+}
+catch
+{
+    Write-Error "Failed to determine ImageBaseUrl from git config. Ensure you are in a git repository with a remote 'origin'. Error: $_"
+    exit 1
+}
 
 # --- Prompt for Credentials if Missing ---
 if ([string]::IsNullOrWhiteSpace($MqttHost)) {
