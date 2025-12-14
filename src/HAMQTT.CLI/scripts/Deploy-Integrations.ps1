@@ -76,7 +76,7 @@ foreach ($dir in $Integrations)
     $envFileContent = Get-Content -Path $envFilePath -ErrorAction SilentlyContinue
     foreach($line in $envFileContent)
     {
-        $ServicesYaml += "\n      - " + ($line -replace "=", ": ")
+        $ServicesYaml += "`r`n      " + ($line -replace "=", ": ")
     }
 }
 
