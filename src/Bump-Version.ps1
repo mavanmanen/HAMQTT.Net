@@ -1,18 +1,16 @@
 param(
-    [Parameter(Mandatory=$false)]
-    [string]$Version
+    [string]$Version = ""
 )
 
 $ErrorActionPreference = "Stop"
 
 $ProjectFiles = @(
-    "HAMQTT.CLI/HAMQTT.CLI.csproj",
-    "HAMQTT.Integration/HAMQTT.Integration.csproj",
+    "HAMQTT.CLI/HAMQTT.CLI.csproj";
+    "HAMQTT.Integration/HAMQTT.Integration.csproj";
     "HAMQTT.Integration.Template.csproj"
 )
 
-# Auto-detect and bump version if not provided
-if ([string]::IsNullOrWhiteSpace($Version)) {
+if ([string]::IsNullOrEmpty($Version)) {
     $ReferenceFile = Join-Path $PSScriptRoot "HAMQTT.Integration/HAMQTT.Integration.csproj"
     if (Test-Path $ReferenceFile) {
         $Content = Get-Content $ReferenceFile -Raw
@@ -28,7 +26,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
             $Patch++
             
             $Version = "$Major.$Minor.$Patch$Suffix"
-            Write-Host "ℹ️  Auto-detected current version: $CurrentVersion. Bumping to: $Version" -ForegroundColor Gray
+            Write-Host "Auto-detected current version: $CurrentVersion. Bumping to: $Version" -ForegroundColor Gray
         } else {
             Write-Error "Could not detect current version from $ReferenceFile"
             exit 1
@@ -68,7 +66,7 @@ foreach ($RelPath in $ProjectFiles) {
 }
 
 if ($PathsToAdd.Count -gt 0) {
-    Write-Host "`nCommitting changes..." -ForegroundColor Cyan
+    Write-Host "Committing changes..." -ForegroundColor Cyan
     
     git add $PathsToAdd
     
@@ -78,16 +76,16 @@ if ($PathsToAdd.Count -gt 0) {
     Write-Host "Tagging version $Tag..." -ForegroundColor Cyan
     git tag $Tag
     
-    Write-Host "`nVersion bumped to $Version (Tag: $Tag) successfully!" -ForegroundColor Green
+    Write-Host "Version bumped to $Version (Tag: $Tag) successfully!" -ForegroundColor Green
 
-    $Push = Read-Host "`nDo you want to push changes and tags to remote? (y/N)"
+    $Push = Read-Host "Do you want to push changes and tags to remote? (y/N)"
     if ($Push -eq 'y' -or $Push -eq 'Y') {
         Write-Host "Pushing to remote..." -ForegroundColor Cyan
         git push
         git push --tags
-        Write-Host "✅ Pushed successfully." -ForegroundColor Green
+        Write-Host "Pushed successfully." -ForegroundColor Green
     } else {
-        Write-Host "ℹ️  Changes committed locally but not pushed." -ForegroundColor Gray
+        Write-Host "Changes committed locally but not pushed." -ForegroundColor Gray
     }
 } else {
     Write-Warning "No files were updated. Nothing to commit."
