@@ -105,10 +105,8 @@ switch ($Context)
     }
 
     "update" {
-        Write-Host "📦 To update HAMQTT, please run:" -ForegroundColor Cyan
-        Write-Host "   dotnet tool update -g HAMQTT.CLI" -ForegroundColor Yellow
-
-        Write-Host "`n📦 Updating templates..." -ForegroundColor Cyan
+        Write-Host "`n📦 Updating..." -ForegroundColor Cyan
+        dotnet tool update --global hamqtt.cli
         dotnet new update
     }
 
