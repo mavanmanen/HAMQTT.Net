@@ -78,7 +78,7 @@ foreach ($dir in $Integrations)
     $envFileContent = Get-Content -Path $envFilePath -ErrorAction SilentlyContinue
     foreach($line in $envFileContent)
     {
-        $ServicesYaml += "      - " + $lines 
+        $ServicesYaml += "\n      - " + $line
     }
 }
 
