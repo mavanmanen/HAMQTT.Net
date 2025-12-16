@@ -10,7 +10,9 @@ jobs:
   prepare-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set_version.outputs.version }}
+      integration_version: ${{ steps.set_version.outputs.integration_version }}
+      cli_version: ${{ steps.set_version.outputs.cli_version }}
+      template_version: ${{ steps.set_version.outputs.template_version }}
     steps:
       - uses: actions/checkout@v6
       
@@ -22,31 +24,48 @@ jobs:
       - name: Set Version (Tag)
         id: set_version_tag
         if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'workflow_dispatch'
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "integration_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          echo "cli_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          echo "template_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
 
       - name: Set Version (Develop)
         id: set_version_develop
         if: github.ref == 'refs/heads/develop' && github.event_name != 'workflow_dispatch'
         run: |
-          PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
-          echo "version=${PROJECT_VERSION}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          INTEGRATION_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
+          echo "integration_version=${INTEGRATION_PROJECT_VERSION}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          CLI_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.CLI/HAMQTT.CLI.csproj -getProperty:Version)
+          echo "cli_version=${CLI_PROJECT_VERSION}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          TEMPLATE_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration.Template.csproj -getProperty:Version)
+          echo "template_version=${TEMPLATE_PROJECT_VERSION}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
       - name: Set Version (Dispatch)
         id: set_version_dispatch
         if: github.event_name == 'workflow_dispatch'
         run: |
-          PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
-          echo "version=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+          INTEGRATION_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration/HAMQTT.Integration.csproj -getProperty:Version)
+          echo "integration_version=${INTEGRATION_PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+          CLI_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.CLI/HAMQTT.CLI.csproj -getProperty:Version)
+          echo "cli_version=${CLI_PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+          TEMPLATE_PROJECT_VERSION=$(dotnet msbuild src/HAMQTT.Integration.Template.csproj -getProperty:Version)
+          echo "template_version=${TEMPLATE_PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Consolidate Version
         id: set_version
         run: |
-          if [ ! -z "${{ steps.set_version_tag.outputs.version }}" ]; then
-            echo "version=${{ steps.set_version_tag.outputs.version }}" >> "$GITHUB_OUTPUT"
-          elif [ ! -z "${{ steps.set_version_develop.outputs.version }}" ]; then
-            echo "version=${{ steps.set_version_develop.outputs.version }}" >> "$GITHUB_OUTPUT"
-          elif [ ! -z "${{ steps.set_version_dispatch.outputs.version }}" ]; then
-            echo "version=${{ steps.set_version_dispatch.outputs.version }}" >> "$GITHUB_OUTPUT"
+          if [ ! -z "${{ steps.set_version_tag.outputs.integration_version }}" ]; then
+            echo "integration_version=${{ steps.set_version_tag.outputs.integration_version }}" >> "$GITHUB_OUTPUT"
+            echo "cli_version=${{ steps.set_version_tag.outputs.cli_version }}" >> "$GITHUB_OUTPUT"
+            echo "template_version=${{ steps.set_version_tag.outputs.template_version }}" >> "$GITHUB_OUTPUT"
+          elif [ ! -z "${{ steps.set_version_develop.outputs.integration_version }}" ]; then
+            echo "integration_version=${{ steps.set_version_develop.outputs.integration_version }}" >> "$GITHUB_OUTPUT"
+            echo "cli_version=${{ steps.set_version_develop.outputs.cli_version }}" >> "$GITHUB_OUTPUT"
+            echo "template_version=${{ steps.set_version_develop.outputs.template_version }}" >> "$GITHUB_OUTPUT"
+          elif [ ! -z "${{ steps.set_version_dispatch.outputs.integration_version }}" ]; then
+            echo "integration_version=${{ steps.set_version_dispatch.outputs.integration_version }}" >> "$GITHUB_OUTPUT"
+            echo "cli_version=${{ steps.set_version_dispatch.outputs.cli_version }}" >> "$GITHUB_OUTPUT"
+            echo "template_version=${{ steps.set_version_dispatch.outputs.template_version }}" >> "$GITHUB_OUTPUT"
           else
              echo "No version determined"
              exit 1
@@ -54,26 +73,26 @@ jobs:
 
   build-library:
     needs: prepare-version
-    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main
+    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main    
     with:
       project_path: src/HAMQTT.Integration/HAMQTT.Integration.csproj
-      version: ${{ needs.prepare-version.outputs.version }}
+      version: ${{ needs.prepare-version.outputs.integration_version }}
       artifact_name: hamqtt-integration
 
   build-template:
     needs: prepare-version
-    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main
+    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main    
     with:
       project_path: src/HAMQTT.Integration.Template.csproj
-      version: ${{ needs.prepare-version.outputs.version }}
+      version: ${{ needs.prepare-version.outputs.template_version }}
       artifact_name: hamqtt-integration-template
-      
+
   build-cli:
     needs: prepare-version
-    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main
+    uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-build-pack.yml@main    
     with:
       project_path: src/HAMQTT.CLI/HAMQTT.CLI.csproj
-      version: ${{ needs.prepare-version.outputs.version }}
+      version: ${{ needs.prepare-version.outputs.cli_version }}
       artifact_name: hamqtt-cli
 
   publish-packages:
@@ -98,7 +117,7 @@ jobs:
         with:
           name: hamqtt-integration-template
           path: packages
-          
+
       - name: Download CLI Artifact
         uses: actions/download-artifact@v7
         with:
