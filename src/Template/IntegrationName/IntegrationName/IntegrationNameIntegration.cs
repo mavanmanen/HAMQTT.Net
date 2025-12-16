@@ -4,7 +4,7 @@ using ToMqttNet;
 
 namespace IntegrationName;
 
-internal sealed class IntegrationNameIntegration(IMqttConnectionService mqtt) : Integration(mqtt)
+internal sealed class IntegrationNameIntegration(IMqttConnectionService mqtt) : CronIntegration(mqtt)
 {
     private const string StateTopic = "integration-name/state";
 
