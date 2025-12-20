@@ -6,7 +6,7 @@ on:
     branches: [ "main" ]
     paths:
       - .github/workflows/integration-name.yml
-      - HAMQTT.Integration.IntegrationName/**
+      - IntegrationName/**
 
 permissions:
   contents: read
@@ -17,5 +17,5 @@ jobs:
     name: Integration Workflow
     uses: mavanmanen/HAMQTT.Net/.github/workflows/hamqtt-integration-workflow.yml@main
     with:
-      name: 'IntegrationName'
-      directory: '/IntegrationName'
+      name: IntegrationName
+      directory: ./IntegrationName/
