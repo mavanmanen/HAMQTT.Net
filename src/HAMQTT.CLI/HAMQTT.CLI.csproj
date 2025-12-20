@@ -8,7 +8,7 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>hamqtt</ToolCommandName>
         <PackageId>HAMQTT.CLI</PackageId>
-        <Version>2.0.4</Version>
+        <Version>2.0.5</Version>
         <Authors>mavanmanen</Authors>
         <Description>CLI tool for scaffolding and managing HAMQTT integrations.</Description>
     </PropertyGroup>
@@ -29,6 +29,7 @@
     </ItemGroup>
 
 </Project>
+
 
 
 

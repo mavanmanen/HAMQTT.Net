@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageType>Template</PackageType>
-        <Version>2.0.4</Version>
+        <Version>2.0.5</Version>
         <PackageId>HAMQTT.Integration.Template</PackageId>
         <Title>HAMQTT Integration Template</Title>
         <Authors>mavanmanen</Authors>
@@ -27,6 +27,7 @@
         <Content Include="Template\**\*" Exclude="Template\**\bin\**;Template\**\obj\**"/>
     </ItemGroup>
 </Project>
+
 
 
 
