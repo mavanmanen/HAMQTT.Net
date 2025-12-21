@@ -2,6 +2,7 @@
 using Coravel.Invocable;
 using HomeAssistantDiscoveryNet;
 using MQTTnet;
+using MQTTnet.Protocol;
 using ToMqttNet;
 
 namespace HAMQTT.Integration;
@@ -22,6 +23,7 @@ public abstract class Integration(IMqttConnectionService mqtt)
         await mqtt.PublishAsync(new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(JsonSerializer.Serialize(payload, JsonSerializerOptions))
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build());
 
     internal async Task PublishDiscoveryDocumentAsync()
